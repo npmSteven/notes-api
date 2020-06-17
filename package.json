@@ -1,0 +1,19 @@
+{
+  "name": "todo_backend",
+  "version": "1.0.0",
+  "description": "A todo app backend with Auth and endpoints for saving todos for each authed user",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/StevenRafferty/todo_backend.git"
+  },
+  "author": "Steven Rafferty <stevenrafferty2@protonmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/StevenRafferty/todo_backend/issues"
+  },
+  "homepage": "https://github.com/StevenRafferty/todo_backend#readme"
+}
