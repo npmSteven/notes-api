@@ -1,6 +1,6 @@
 // Packages
 const express = require('express');
-const uuid = require('uuid');
+const exphbs = require('express-handlebars');
 
 // Files
 const config = require('./config');
@@ -19,8 +19,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Set template engine
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
+
 // Routes
 app.use('/auth', authRoute);
+
+app.get('/', (req, res) => {
+  res.status(200).render('index');
+});
 
 // Run app
 init();

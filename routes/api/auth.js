@@ -10,6 +10,13 @@ const lib = require('../../lib');
 
 const User = require('../../Models/User');
 
+router.get(
+  '/login',
+  (req, res) => {
+    res.status(200).render('index');
+  }
+);
+
 router.post(
   '/login',
   passport.authenticate('local'),
