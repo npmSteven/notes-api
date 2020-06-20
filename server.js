@@ -23,6 +23,9 @@ app.use(passport.session());
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
 
+// Set static files
+app.use('/assets', express.static('assets'));
+
 // Routes
 app.use('/auth', authRoute);
 
