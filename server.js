@@ -1,6 +1,7 @@
 // Packages
 const express = require('express');
 const exphbs = require('express-handlebars');
+const cookieSession = require('cookie-session');
 
 // Files
 const config = require('./config');
@@ -14,6 +15,12 @@ const app = express();
 // MW - parsing data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Cookie Session
+app.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 1000,
+  keys: [ config.cookie.key ]
+}));
 
 // MW - passport
 app.use(passport.initialize());

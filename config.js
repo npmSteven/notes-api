@@ -13,5 +13,8 @@ module.exports = {
   },
   express: {
     port: process.env.PORT || 8080
+  },
+  cookie: {
+    key: 'djakshdklasjdlksajdlkdsalkjdklasd'
   }
 };
