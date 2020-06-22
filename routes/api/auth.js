@@ -19,6 +19,10 @@ router.get(
 
 router.post(
   '/login',
+  [
+    check('username').exists({ checkFalsy: true, checkNull: true }),
+    check('password').exists({ checkFalsy: true, checkNull: true }),
+  ],
   passport.authenticate('local'),
   (req, res) => {
     res.status(200).json({ msg: 'Logged in', success: true });
