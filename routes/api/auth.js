@@ -6,12 +6,12 @@ const uuid = require('uuid');
 
 const router = express.Router();
 
-const lib = require('../../lib');
-
 const User = require('../../Models/User');
+const lib = require('../../lib');
 
 router.get(
   '/login',
+  lib.alreadyAuthed,
   (req, res) => {
     res.status(200).render('login');
   }
@@ -20,9 +20,16 @@ router.get(
 router.post(
   '/login',
   passport.authenticate('local'),
-  lib.ensureAuthenticated,
   (req, res) => {
-    res.status(200).json({ msg: 'Logged in' });
+    res.status(200).json({ msg: 'Logged in', success: true });
+  }
+);
+
+router.get(
+  '/register',
+  lib.alreadyAuthed,
+  (req, res) => {
+    res.status(200).render('register');
   }
 );
 
@@ -52,12 +59,18 @@ router.post(
     bcrypt.genSalt(10, (error, salt) => {
       bcrypt.hash(password, salt, (error, hash) => {
         if (error) throw error;
-        const newUser = User.create({ id: uuid.v4(), username, email, password: hash });
-        console.log(newUser);
-        res.status(200).json({ msg: 'Account has been created' });
+        User.create({ id: uuid.v4(), username, email, password: hash });
+        res.status(200).json({ msg: 'Account has been created', success: true });
       });
     });
+  }
+);
 
+router.get(
+  '/logout',
+  (req, res) => {
+    req.logOut();
+    res.redirect('/auth/login');
   }
 )
 
