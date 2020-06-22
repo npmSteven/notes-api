@@ -6,17 +6,15 @@ const loginButton = document.getElementById('loginButton');
 loginButton.addEventListener('click', async event => {
   const username = document.getElementById('username');
   const password = document.getElementById('password');
-  if (username && password) {
+  const form = document.querySelector('.form');
+  if (username.value && password.value) {
     const domain = window.location.origin;
     loginButton.classList.add('loading');
     try {
       const response = await login(username.value, password.value);
       loginButton.classList.remove('loading');
       if (!response.ok) {
-        if (!document.querySelector('#alertMsg')) {
-          const form = document.querySelector('.form');
-          alert(form, 'Username or password is incorrect');
-        }
+        alert(form, 'Invalid credentials');
       }
       const data = await response.json();
       if (data.success) {
@@ -25,5 +23,7 @@ loginButton.addEventListener('click', async event => {
     } catch (error) {
       console.log(error);
     }
+  } else {
+    alert(form, 'Username or password is empty or incorrect');
   }
 });
