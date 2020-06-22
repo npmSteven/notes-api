@@ -19,6 +19,7 @@
   "homepage": "https://github.com/StevenRafferty/todo_backend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-handlebars": "^4.0.4",

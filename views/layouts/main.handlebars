@@ -8,8 +8,24 @@
   </head>
   <body>
 
-    {{{ body }}}
+    <div class="ui stackable menu">
+      <a class="item" href="/">TODO</a>
+      <div class="right menu">
+        {{#if user}}
+          <a class="item" href="/auth/logout">Logout</a>
+        {{else}}
+          <a class="item" href="/auth/login">Login</a>
+          <a class="item" href="/auth/register">Register</a>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="ui container">
+      {{{ body }}}
+    </div>
   
+    <script src="/assets/js/jquery-3.5.1.min.js"></script>
     <script src="/assets/js/semantic.min.js"></script>
+    <script src="/assets/js/main.js"></script>
   </body>
 </html>
