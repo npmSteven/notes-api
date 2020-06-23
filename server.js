@@ -7,8 +7,13 @@ const cookieSession = require('cookie-session');
 // Files
 const config = require('./config');
 const db = require('./db');
-const authRoute = require('./routes/api/auth');
 const lib = require('./lib');
+
+const authApiRoutes = require('./routes/api/auth');
+const noteApiRoutes = require('./routes/api/note');
+
+const authRoutes = require('./routes/auth');
+const noteRoutes = require('./routes/note');
 
 // Init express
 const app = express();
@@ -35,7 +40,12 @@ app.set('view engine', 'handlebars');
 app.use('/assets', express.static('assets'));
 
 // Routes
-app.use('/auth', authRoute);
+// API
+app.use('/api/auth', authApiRoutes);
+app.use('/api/note', noteApiRoutes);
+// UI
+app.use('/auth', authRoutes);
+app.use('/note', noteRoutes);
 
 app.get('/', lib.ensureAuthenticated, (req, res) => {
   const user = lib.getUserUi(req.user);
