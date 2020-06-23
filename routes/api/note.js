@@ -16,8 +16,11 @@ router.get('/', async (req, res) => {
     if (req.user && req.user.id) {
       const user = await User.findByPk(req.user.id);
       if (user) {
-        const notes = await Note.findAll();
-        res.status(200).json({ success: true, notes });
+        const notes = await Note.findAll({ where: { userId: user.id } });
+        if (!notes) {
+          notes = [];
+        }
+        return res.status(200).json({ success: true, notes });
       }
       return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
     }
@@ -27,6 +30,40 @@ router.get('/', async (req, res) => {
     res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
   }
 });
+
+// Get a note
+router.get(
+  '/:id',
+  [
+    check('id').isUUID(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+    try {
+      if (req.user && req.user.id) {
+        const user = await User.findByPk(req.user.id);
+        if (user) {
+          const note = await Note.findByPk(req.params.id)
+          if (note) {
+            if (user.id === note.userId) {
+              return res.status(200).json({ success: true, note });
+            }
+            return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+          }
+          return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
+        }
+        return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+      }
+      return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+    } catch (error) {
+      console.log('ERROR - note.js - / get notes: ', error);
+      res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
+    }
+  }
+)
 
 router.post(
   '/',
@@ -64,7 +101,6 @@ router.post(
 
 router.patch(
   '/:id',
-  lib.ensureAuthenticated,
   [
     check('id').isUUID(),
     check('title').exists({ checkFalsy: true, checkNull: true }),
@@ -102,11 +138,8 @@ router.patch(
 
 router.delete(
   '/:id',
-  lib.ensureAuthenticated,
   [
-    check('id').isUUID(),
-    check('title').exists({ checkFalsy: true, checkNull: true }),
-    check('content').exists({ checkFalsy: true, checkNull: true }),
+    check('id').isUUID()
   ],
   async (req, res) => {
     const errors = validationResult(req);

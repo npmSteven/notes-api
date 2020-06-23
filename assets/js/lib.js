@@ -1,6 +1,6 @@
-const alert = (parent, msg) => {
+const alert = (parent, msg, status = 'negative') => {
   const errorAlert = document.createElement('div');
-  errorAlert.classList.add('ui', 'negative', 'message');
+  errorAlert.classList.add('ui', status, 'message');
   errorAlert.id = 'alertMsg';
   const message = document.createElement('div');
   message.classList.add('header');

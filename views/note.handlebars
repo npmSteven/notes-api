@@ -1,0 +1,30 @@
+<link rel="stylesheet" href="/assets/css/note.css">
+
+<div id="note-container" data-id="{{ noteId }}">
+  <div class="ui secondary vertical menu">
+    <a class="item" id="update">
+      Update
+    </a>
+    <a class="item" id="delete">
+      Delete
+    </a>
+    <a class="item" id="back" href="/note">
+      Back
+    </a>
+  </div>
+
+  <div class="ui form">
+    <div class="field">
+      <label>Title</label>
+      <textarea rows="1" id="title"></textarea>
+    </div>
+    <div class="field">
+      <label>Content</label>
+      <textarea id="content"></textarea>
+    </div>
+  </div>
+</div>
+
+<div id="alert-container"></div>
+
+<script type="module" src="/assets/js/note.js"></script>
