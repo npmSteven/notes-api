@@ -54,4 +54,60 @@ const logout = async () => {
   }
 }
 
-export { login, register, logout };
+const getNotes = async () => {
+  try {
+    const response = await fetch(`${domain}/api/note`, {
+      method: 'GET'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - getNotes(): ', error);
+    return null;
+  }
+};
+
+const getNote = async id => {
+  try {
+    const response = await fetch(`${domain}/api/note/${id}`, {
+      method: 'GET'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - getNotes(): ', error);
+    return null;
+  }
+};
+
+const updateNote = async (id, title, content) => {
+  try {
+    const response = await fetch(`${domain}/api/note/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        content
+      }),
+      credentials: 'include'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - getNotes(): ', error);
+    return null;
+  }
+};
+
+const deleteNote = async id => {
+  try {
+    const response = await fetch(`${domain}/api/note/${id}`, {
+      method: 'DELETE'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - getNotes(): ', error);
+    return null;
+  }
+};
+
+export { login, register, logout, getNotes, getNote, updateNote, deleteNote };
