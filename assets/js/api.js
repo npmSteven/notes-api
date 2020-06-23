@@ -1,35 +1,57 @@
 const domain = window.location.origin;
 
 const register = async (username, email, password, confirmPassword) => {
-  const response = await fetch(`${domain}/auth/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      username,
-      email,
-      password,
-      confirmPassword
-    }),
-    credentials: 'include'
-  });
-  return response;
+  try {
+    const response = await fetch(`${domain}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+        confirmPassword
+      }),
+      credentials: 'include'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - register(): ', error);
+    return null;
+  }
 }
 
 const login = async (username, password) => {
-  const response = await fetch(`${domain}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      username,
-      password
-    }),
-    credentials: 'include'
-  });
-  return response;
+  try {
+    const response = await fetch(`${domain}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        password
+      }),
+      credentials: 'include'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - login(): ', error);
+    return null;
+  }
 }
 
-export { login, register };
+const logout = async () => {
+  try {
+    const response = await fetch(`${domain}/api/auth/logout`, {
+      method: 'GET'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - logout(): ', error);
+    return null;
+  }
+}
+
+export { login, register, logout };

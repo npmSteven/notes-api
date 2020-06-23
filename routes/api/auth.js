@@ -7,33 +7,12 @@ const uuid = require('uuid');
 const router = express.Router();
 
 const User = require('../../Models/User');
-const lib = require('../../lib');
-
-router.get(
-  '/login',
-  lib.alreadyAuthed,
-  (req, res) => {
-    res.status(200).render('login');
-  }
-);
 
 router.post(
   '/login',
-  [
-    check('username').exists({ checkFalsy: true, checkNull: true }),
-    check('password').exists({ checkFalsy: true, checkNull: true }),
-  ],
   passport.authenticate('local'),
   (req, res) => {
-    res.status(200).json({ msg: 'Logged in', success: true });
-  }
-);
-
-router.get(
-  '/register',
-  lib.alreadyAuthed,
-  (req, res) => {
-    res.status(200).render('register');
+    return res.status(200).json({ msg: 'Logged in', success: true });
   }
 );
 
@@ -48,23 +27,28 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      return res.status(422).json({ success: false, errors: errors.array() });
     }
     const { username, email, password, confirmPassword } = req.body;
     if (password !== confirmPassword) {
-      return res.status(422).json({ errors: [ { msg: 'Passwords must match', param: 'confirmPassword', location: 'body' } ] });
+      return res.status(422).json({ success: false, errors: [ { msg: 'Passwords must match', param: 'confirmPassword', location: 'body' } ] });
     }
     // Check if user already exists
     const currentUser = await User.findOne({ where: { username } });
     if (currentUser) {
-      return res.status(422).json({ errors: [ { msg: 'User already exists' } ] });
+      return res.status(422).json({ success: false, errors: [ { msg: 'User already exists' } ] });
     }
     // Create the user
     bcrypt.genSalt(10, (error, salt) => {
-      bcrypt.hash(password, salt, (error, hash) => {
+      bcrypt.hash(password, salt, async (error, hash) => {
         if (error) throw error;
-        User.create({ id: uuid.v4(), username, email, password: hash });
-        res.status(200).json({ msg: 'Account has been created', success: true });
+        try {
+          await User.create({ id: uuid.v4(), username, email, password: hash });
+          return res.status(200).json({ msg: 'Account has been created', success: true });
+        } catch (error) {
+          console.log('ERROR - auth.js - /register post: ', error);
+          return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
+        }
       });
     });
   }
@@ -74,7 +58,7 @@ router.get(
   '/logout',
   (req, res) => {
     req.logOut();
-    res.redirect('/auth/login');
+    return res.status(200).json({ success: true, msg: 'Logged out' });
   }
 )
 
