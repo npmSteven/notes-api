@@ -95,7 +95,7 @@ router.patch(
       }
     } catch (error) {
       console.log('ERROR - note.js - / patch', error);
-      res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
+      return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
     }
   }
 );
@@ -121,15 +121,16 @@ router.delete(
         if (note) {
           if (user.id === note.userId) {
             const deleteNote = await note.destroy();
-            res.status(200).json({ success: true, note: deleteNote });
+            return res.status(200).json({ success: true, note: deleteNote });
           }
-          res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
+          return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
         }
-        res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+        return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
       }
+      return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
     } catch (error) {
       console.log('ERROR - note.js - / patch', error);
-      res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
+      return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
     }
   }
 );

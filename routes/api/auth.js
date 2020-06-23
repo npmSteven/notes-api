@@ -12,7 +12,7 @@ router.post(
   '/login',
   passport.authenticate('local'),
   (req, res) => {
-    res.status(200).json({ msg: 'Logged in', success: true });
+    return res.status(200).json({ msg: 'Logged in', success: true });
   }
 );
 
@@ -44,10 +44,10 @@ router.post(
         if (error) throw error;
         try {
           await User.create({ id: uuid.v4(), username, email, password: hash });
-          res.status(200).json({ msg: 'Account has been created', success: true });
+          return res.status(200).json({ msg: 'Account has been created', success: true });
         } catch (error) {
           console.log('ERROR - auth.js - /register post: ', error);
-          res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
+          return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
         }
       });
     });
@@ -58,7 +58,7 @@ router.get(
   '/logout',
   (req, res) => {
     req.logOut();
-    res.status(200).json({ success: true, msg: 'Logged out' });
+    return res.status(200).json({ success: true, msg: 'Logged out' });
   }
 )
 
