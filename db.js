@@ -2,7 +2,15 @@ const { Sequelize } = require('sequelize');
 
 const { db } = require('./config');
 
-const sequelize = new Sequelize(db.url);
+const sequelize = new Sequelize(db.url, {
+  protocol: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+});
 
 module.exports.connect = async () => {
   try {
