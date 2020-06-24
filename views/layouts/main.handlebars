@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Todo APP</title>
+
+    <link rel="stylesheet" href="/assets/css/semantic.min.css">
+  </head>
+  <body>
+
+    <div class="ui stackable menu">
+      <a class="item" href="/">NOTE APP</a>
+      <div class="right menu">
+        {{#if user}}
+          <a class="item" href="/note">Notes</a>
+          <a class="item" id="logout">Logout</a>
+        {{else}}
+          <a class="item" href="/auth/login">Login</a>
+          <a class="item" href="/auth/register">Register</a>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="ui container">
+      {{{ body }}}
+    </div>
+  
+    <script src="/assets/js/jquery-3.5.1.min.js"></script>
+    <script src="/assets/js/semantic.min.js"></script>
+    <script type="module" src="/assets/js/main.js"></script>
+  </body>
+</html>
