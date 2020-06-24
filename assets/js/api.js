@@ -110,4 +110,24 @@ const deleteNote = async id => {
   }
 };
 
-export { login, register, logout, getNotes, getNote, updateNote, deleteNote };
+const addNote = async (title, content) => {
+  try {
+    const response = await fetch(`${domain}/api/note`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        content
+      }),
+      credentials: 'include'
+    });
+    return response;
+  } catch (error) {
+    console.log('ERROR - api.js - addNote(): ', error);
+    return null;
+  }
+};
+
+export { login, register, logout, getNotes, getNote, updateNote, deleteNote, addNote };

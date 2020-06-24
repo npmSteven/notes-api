@@ -1,10 +1,15 @@
-import { getNotes } from './api.js';
+import { getNotes, addNote } from './api.js';
 
 const notesList = document.getElementById('notes-list');
 
+const addNoteButton = document.getElementById('add-note');
+const saveButton = document.getElementById('add-note-save');
+const title = document.getElementById('title');
+const content = document.getElementById('content');
+
+
 // Attach notes
 const attachNotes = async () => {
-  const domain = window.location.origin;
   const response = await getNotes();
   if (response && response.ok) {
     const data = await response.json();
@@ -47,4 +52,26 @@ const createNoteSummary = (parent, noteTitle, noteContent, id) => {
   content.appendChild(description);
 
   parent.appendChild(item);
+}
+
+addNoteButton.addEventListener('click', event => {
+  $('.ui.modal').modal('show');
+});
+
+if (saveButton && title && content) {
+  saveButton.addEventListener('click', async event => {
+    if (title.value.length > 0 && content.value.length > 0) {
+      try {
+        const response = await addNote(title.value, content.value);
+        if (response && response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            window.location.href = `${window.location.origin}/note/${data.note.id}`;
+          }
+        }
+      } catch (error) {
+
+      }
+    }
+  });
 }
