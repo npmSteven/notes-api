@@ -1,15 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const { db: { username, password, host, database } } = require('./config');
+const { db } = require('./config');
 
-const sequelize = new Sequelize({ 
-  dialect: 'postgres',
-  host,
-  port: 5433,
-  database,
-  password,
-  username
-});
+const sequelize = new Sequelize(db.url);
 
 module.exports.connect = async () => {
   try {
