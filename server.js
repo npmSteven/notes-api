@@ -9,9 +9,12 @@ const config = require('./config');
 const db = require('./db');
 const lib = require('./lib');
 
+
+// Routes - API
 const authApiRoutes = require('./routes/api/auth');
 const noteApiRoutes = require('./routes/api/note');
 
+// Routes - UI
 const authRoutes = require('./routes/auth');
 const noteRoutes = require('./routes/note');
 
