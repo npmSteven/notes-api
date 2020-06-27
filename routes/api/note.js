@@ -8,14 +8,17 @@ const User = require('../../Models/User');
 
 const router = express.Router();
 
-/**
- * @desc Get all of the available notes
- */
+// @route GET api/note
+// @desc Gets all of the available notes for that user
+// @access private
 router.get('/', async (req, res) => {
   try {
+    // Check if the user is authed
     if (req.user && req.user.id) {
+      // Check if the user who is authed exists in the database
       const user = await User.findByPk(req.user.id);
       if (user) {
+        // Check if the user has any notes
         const notes = await Note.findAll({ where: { userId: user.id } });
         if (!notes) {
           notes = [];
@@ -31,7 +34,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a note
+// @route GET api/note/:id
+// @desc Get a specific note
+// @access private
 router.get(
   '/:id',
   [
@@ -43,11 +48,15 @@ router.get(
       return res.status(422).json({ success: false, errors: errors.array() });
     }
     try {
+      // Check if the user is authed
       if (req.user && req.user.id) {
+        // Check if the user who is authed exists in the database
         const user = await User.findByPk(req.user.id);
         if (user) {
+          // Check if the note exists
           const note = await Note.findByPk(req.params.id)
           if (note) {
+            // Check if the user owns the note
             if (user.id === note.userId) {
               return res.status(200).json({ success: true, note });
             }
@@ -65,6 +74,9 @@ router.get(
   }
 )
 
+// @route POST api/note/:id
+// @desc Adds a note
+// @access private
 router.post(
   '/',
   [
@@ -78,7 +90,9 @@ router.post(
     }
     const { title, content } = req.body
     try {
+      // Check if the user is authed
       if (req.user && req.user.id) {
+        // Check if the user who is authed exists in the database
         const user = await User.findByPk(req.user.id);
         if (user) {
           const savedNote = await Note.create({
@@ -99,6 +113,9 @@ router.post(
   }
 );
 
+// @route PATCH api/note/:id
+// @desc Patches a note
+// @access private
 router.patch(
   '/:id',
   [
@@ -114,18 +131,25 @@ router.patch(
     const { id } = req.params;
     const { title, content } = req.body
     try {
-      const user = await User.findByPk(req.user.id);
-      if (user) {
-        const note = await Note.findByPk(id);
-        if (note) {
-          if (user.id === note.userId) {
-            const updatedNote = await note.update({
-              title,
-              content
-            });
-            return res.status(200).json({ success: true, note: updatedNote });
+      // Check if the user is authed
+      if (req.user && req.user.id) {
+        // Check if the user who is authed exists in the database
+        const user = await User.findByPk(req.user.id);
+        if (user) {
+          // Check if the note exists in the database
+          const note = await Note.findByPk(id);
+          if (note) {
+            // Check if the user owns the note
+            if (user.id === note.userId) {
+              const updatedNote = await note.update({
+                title,
+                content
+              });
+              return res.status(200).json({ success: true, note: updatedNote });
+            }
+            return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
           }
-          return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
+          return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
         }
         return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
       }
@@ -136,6 +160,9 @@ router.patch(
   }
 );
 
+// @route DELETE api/note/:id
+// @desc Deletes a note
+// @access private
 router.delete(
   '/:id',
   [
@@ -148,15 +175,22 @@ router.delete(
     }
     const { id } = req.params;
     try {
-      const user = await User.findByPk(req.user.id);
-      if (user) {
-        const note = await Note.findByPk(id);
-        if (note) {
-          if (user.id === note.userId) {
-            const deleteNote = await note.destroy();
-            return res.status(200).json({ success: true, note: deleteNote });
+      // Check if the user is authed
+      if (req.user && req.user.id) {
+        // Check if the user who is authed exists in the database
+        const user = await User.findByPk(req.user.id);
+        if (user) {
+          // Check if the note exists in the database
+          const note = await Note.findByPk(id);
+          if (note) {
+            // Check if the user owns the note
+            if (user.id === note.userId) {
+              const deleteNote = await note.destroy();
+              return res.status(200).json({ success: true, note: deleteNote });
+            }
+            return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
           }
-          return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
+          return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
         }
         return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
       }
