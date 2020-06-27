@@ -56,11 +56,17 @@ app.get('/', lib.ensureAuthenticated, (req, res) => {
 init();
 
 async function init() {
-  await db.connect();
+  try {
+    // Attempt a database connection
+    await db.connect();
 
-  // Setup passport
-  require('./passport');
-
-  // Start express
-  app.listen(config.express.port, () => console.log('APP Running!'));
+    // Setup passport
+    require('./passport');
+  
+    // Start express
+    app.listen(config.express.port, () => console.log('APP Running!'));
+  } catch {
+    console.log('ERROR - failed to start app database issue');
+    process.exit(1);
+  }
 }

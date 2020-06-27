@@ -2,6 +2,7 @@ const { Sequelize } = require('sequelize');
 
 const { db } = require('./config');
 
+// Set the credentials of the database and options to connect
 const sequelize = new Sequelize(db.url, {
   protocol: 'postgres',
   dialectOptions: {
@@ -12,6 +13,7 @@ const sequelize = new Sequelize(db.url, {
   }
 });
 
+// Authenticate to the database
 module.exports.connect = async () => {
   try {
     await sequelize.authenticate();
@@ -22,4 +24,5 @@ module.exports.connect = async () => {
   }
 };
 
+// Return sequelize so that we can use it to create models and etc
 module.exports.sequelize = () => sequelize;
