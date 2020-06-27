@@ -8,6 +8,9 @@ const router = express.Router();
 
 const User = require('../../Models/User');
 
+// @route POST api/auth/login
+// @desc Authenticates a preexisting user
+// @access public
 router.post(
   '/login',
   passport.authenticate('local'),
@@ -16,6 +19,9 @@ router.post(
   }
 );
 
+// @route POST api/auth/register
+// @desc Creates a user in the database
+// @access public
 router.post(
   '/register',
   [
@@ -30,6 +36,7 @@ router.post(
       return res.status(422).json({ success: false, errors: errors.array() });
     }
     const { username, email, password, confirmPassword } = req.body;
+    // Check if the passwords match
     if (password !== confirmPassword) {
       return res.status(422).json({ success: false, errors: [ { msg: 'Passwords must match', param: 'confirmPassword', location: 'body' } ] });
     }
@@ -54,6 +61,9 @@ router.post(
   }
 );
 
+// @route GET api/auth/logout
+// @desc Logout an authenticated user
+// @access public
 router.get(
   '/logout',
   (req, res) => {

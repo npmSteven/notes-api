@@ -12,6 +12,6 @@ module.exports = {
     port: process.env.PORT || 8080
   },
   cookie: {
-    key: 'djakshdklasjdlksajdlkdsalkjdklasd'
+    key: process.env.COOKIE_SECRET_KEY
   }
 };
