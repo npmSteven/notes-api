@@ -9,9 +9,9 @@ const { idValidation, addNoteValidation, updateNoteValidation } = require('../..
 
 const router = express.Router();
 
-// @route GET api/note
-// @desc Gets all of the available notes for that user
-// @access private
+/**
+ * Get all notes of the authenticated user
+ */
 router.get('/', auth, lib.validateUser, async (req, res) => {
   try {
     // Check if the user has any notes
@@ -23,9 +23,10 @@ router.get('/', auth, lib.validateUser, async (req, res) => {
   }
 });
 
-// @route GET api/note/:id
-// @desc Get a specific note
-// @access private
+/**
+ * Get a specific note for the authenticated user
+ * @param {uuid} id - The id of the note
+ */
 router.get(
   '/:id',
   auth,
@@ -53,9 +54,11 @@ router.get(
   }
 )
 
-// @route POST api/note/:id
-// @desc Adds a note
-// @access private
+/**
+ * Create a note for the authenticated user
+ * @property {string} title - The title of the note
+ * @property {string} content - The content of the note
+ */
 router.post(
   '/',
   auth,
@@ -81,9 +84,12 @@ router.post(
   }
 );
 
-// @route PATCH api/note/:id
-// @desc Patches a note
-// @access private
+/**
+ * Updated an existing note of an authenticated user
+ * @param {uuid} id - The id of the note
+ * @property {string} title - The title of the note
+ * @property {string} content - The content of the note
+ */
 router.patch(
   '/:id',
   auth,
@@ -117,9 +123,10 @@ router.patch(
   }
 );
 
-// @route DELETE api/note/:id
-// @desc Deletes a note
-// @access private
+/**
+ * Delete an existing note of an authenticated user
+ * @param {uuid} id - The id of the note
+ */
 router.delete(
   '/:id',
   auth,

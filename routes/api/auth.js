@@ -12,9 +12,11 @@ const config = require('../../config');
 const router = express.Router();
 
 
-// @route POST api/auth/login
-// @desc Authenticates a preexisting user
-// @access public
+/**
+ * Create a user
+ * @property {string} username - The user's username
+ * @property {string} password - The user's password
+ */
 router.post(
   '/login',
   async (req, res) => {
@@ -51,9 +53,12 @@ router.post(
   }
 );
 
-// @route POST api/auth/register
-// @desc Creates a user in the database
-// @access public
+/**
+ * Authenticates a user
+ * @property {string} username - The user's username
+ * @property {string} email - The user's email
+ * @property {string} password - The user's password
+ */
 router.post(
   '/register',
   async (req, res) => {
@@ -103,9 +108,7 @@ router.post(
 );
 
 /**
- * @route GET api/auth/user
- * @desc Get user data
- * @access private
+ * Get a user's details
  */
 router.get(
   '/user',
