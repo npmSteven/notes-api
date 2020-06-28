@@ -50,7 +50,6 @@ passport.use(new LocalStrategy(
         // If it fails then the user has entered an incorrect password
         return done(null, false, { message: 'Password incorrect' });
       });
-      return done(null, currentUser);
     } catch (error) {
       return done(error);
     }

@@ -14,7 +14,7 @@ const lib = require('../../lib');
 // @access public
 router.post(
   '/login',
-  passport.authenticate('local'),
+  passport.authenticate('local', { failureMessage: 'Invalid username or password' }),
   (req, res) => {
     return res.status(200).json({ msg: 'Logged in', success: true });
   }
@@ -37,6 +37,7 @@ router.post(
     if (currentUser) {
       return res.status(401).json({ success: false, errors: [ { msg: 'User already exists' } ] });
     }
+
     // Create the user
     bcrypt.genSalt(10, (error, salt) => {
       bcrypt.hash(password, salt, async (error, hash) => {
