@@ -2,10 +2,6 @@ const User = require('./models/User');
 
 module.exports = {
   validateUser: async (req, res, next) => {
-    // Check if the user is authed
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
-    }
     try {
       // Check if the user who is authed exists in the database
       const user = await User.findByPk(req.user.id);
@@ -15,6 +11,7 @@ module.exports = {
       return next();
     } catch (error) {
       console.error('ERROR - lib.js - validateUser(): ', error);
+      return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
     }
   },
   getUser: user => {
