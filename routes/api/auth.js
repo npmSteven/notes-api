@@ -32,7 +32,7 @@ router.post(
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(401).json({ success: false, message: 'Password is incorrect' });
 
-      const token = jwt.sign({ id: user.id, createdAt: user.createdAt }, config.jwt.secret, { expiresIn: 86400 });
+      const token = jwt.sign({ id: user.id }, config.jwt.secret, { expiresIn: 86400 });
       if (!token) return res.status(500).json({ success: false, message: `Couldn't sign the token` });
 
       return res.status(200).json({
@@ -85,7 +85,7 @@ router.post(
       });
       if (!newUser) return res.status(500).json({ success: false, message: 'Something went wrong with saving the user' });
 
-      const token = jwt.sign({ id: newUser.id, createdAt: user.createdAt }, config.jwt.secret, { expiresIn: 86400 });
+      const token = jwt.sign({ id: newUser.id }, config.jwt.secret, { expiresIn: 86400 });
       if (!token) return res.status(500).json({ success: false, message: `Couldn't sign the token` });
 
       return res.status(200).json({
