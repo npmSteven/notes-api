@@ -1,5 +1,7 @@
 // Packages
 const express = require('express');
+const cors = require('cors');
+const rateLimit = require("express-rate-limit");
 
 // Files
 const config = require('./config');
@@ -10,6 +12,16 @@ const noteApiRoutes = require('./routes/api/note');
 
 // Init express
 const app = express();
+
+// Cors
+app.use(cors());
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  max: 50, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests, wait a minute until you can query again'
+});
+app.use(limiter);
 
 // MW - parsing data
 app.use(express.json());
