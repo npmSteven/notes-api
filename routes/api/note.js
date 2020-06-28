@@ -4,30 +4,20 @@ const uuid = require('uuid');
 
 const lib = require('../../lib');
 const Note = require('../../Models/Note');
-const User = require('../../Models/User');
 
 const router = express.Router();
+
+// Check if req.user and req.user.id
+// Check user
 
 // @route GET api/note
 // @desc Gets all of the available notes for that user
 // @access private
-router.get('/', async (req, res) => {
+router.get('/', lib.validateUser, async (req, res) => {
   try {
-    // Check if the user is authed
-    if (req.user && req.user.id) {
-      // Check if the user who is authed exists in the database
-      const user = await User.findByPk(req.user.id);
-      if (user) {
-        // Check if the user has any notes
-        const notes = await Note.findAll({ where: { userId: user.id } });
-        if (!notes) {
-          notes = [];
-        }
-        return res.status(200).json({ success: true, notes });
-      }
-      return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
-    }
-    return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+    // Check if the user has any notes
+    const notes = await Note.findAll({ where: { userId: user.id } });
+    return res.status(200).json({ success: true, notes });
   } catch (error) {
     console.log('ERROR - note.js - / get notes: ', error);
     res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
@@ -42,29 +32,21 @@ router.get(
   [
     check('id').isUUID(),
   ],
+  lib.validateUser,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, errors: errors.array() });
     }
     try {
-      // Check if the user is authed
-      if (req.user && req.user.id) {
-        // Check if the user who is authed exists in the database
-        const user = await User.findByPk(req.user.id);
-        if (user) {
-          // Check if the note exists
-          const note = await Note.findByPk(req.params.id)
-          if (note) {
-            // Check if the user owns the note
-            if (user.id === note.userId) {
-              return res.status(200).json({ success: true, note });
-            }
-            return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
-          }
-          return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
-        }
+      // Check if the note exists
+      const note = await Note.findByPk(req.params.id)
+      if (!note) {
         return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+      }
+      // Check if the user owns the note
+      if (user.id === note.userId) {
+        return res.status(200).json({ success: true, note });
       }
       return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
     } catch (error) {
@@ -83,6 +65,7 @@ router.post(
     check('title').exists({ checkFalsy: true, checkNull: true }),
     check('content').exists({ checkFalsy: true, checkNull: true })
   ],
+  lib.validateUser,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -90,22 +73,13 @@ router.post(
     }
     const { title, content } = req.body
     try {
-      // Check if the user is authed
-      if (req.user && req.user.id) {
-        // Check if the user who is authed exists in the database
-        const user = await User.findByPk(req.user.id);
-        if (user) {
-          const savedNote = await Note.create({
-            id: uuid.v4(),
-            userId: req.user.id,
-            title,
-            content
-          });
-          return res.status(200).json({ success: true, note: savedNote });
-        }
-        return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
-      }
-      return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+      const savedNote = await Note.create({
+        id: uuid.v4(),
+        userId: req.user.id,
+        title,
+        content
+      });
+      return res.status(200).json({ success: true, note: savedNote });
     } catch (error) {
       console.log('ERROR - note.js - / post', error);
       res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
@@ -123,6 +97,7 @@ router.patch(
     check('title').exists({ checkFalsy: true, checkNull: true }),
     check('content').exists({ checkFalsy: true, checkNull: true }),
   ],
+  lib.validateUser,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -131,28 +106,20 @@ router.patch(
     const { id } = req.params;
     const { title, content } = req.body
     try {
-      // Check if the user is authed
-      if (req.user && req.user.id) {
-        // Check if the user who is authed exists in the database
-        const user = await User.findByPk(req.user.id);
-        if (user) {
-          // Check if the note exists in the database
-          const note = await Note.findByPk(id);
-          if (note) {
-            // Check if the user owns the note
-            if (user.id === note.userId) {
-              const updatedNote = await note.update({
-                title,
-                content
-              });
-              return res.status(200).json({ success: true, note: updatedNote });
-            }
-            return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
-          }
-          return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
-        }
-        return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+      // Check if the note exists in the database
+      const note = await Note.findByPk(id);
+      if (!note) {
+        return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
       }
+      // Check if the user owns the note
+      if (user.id === note.userId) {
+        const updatedNote = await note.update({
+          title,
+          content
+        });
+        return res.status(200).json({ success: true, note: updatedNote });
+      }
+      return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
     } catch (error) {
       console.log('ERROR - note.js - / patch', error);
       return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
@@ -168,6 +135,7 @@ router.delete(
   [
     check('id').isUUID()
   ],
+  lib.validateUser,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -175,24 +143,15 @@ router.delete(
     }
     const { id } = req.params;
     try {
-      // Check if the user is authed
-      if (req.user && req.user.id) {
-        // Check if the user who is authed exists in the database
-        const user = await User.findByPk(req.user.id);
-        if (user) {
-          // Check if the note exists in the database
-          const note = await Note.findByPk(id);
-          if (note) {
-            // Check if the user owns the note
-            if (user.id === note.userId) {
-              const deleteNote = await note.destroy();
-              return res.status(200).json({ success: true, note: deleteNote });
-            }
-            return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
-          }
-          return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
-        }
-        return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
+      // Check if the note exists in the database
+      const note = await Note.findByPk(id);
+      if (!note) {
+        return res.status(404).json({ success: false, errors: [ { msg: `Note doesn't exist` } ] });
+      }
+      // Check if the user owns the note
+      if (user.id === note.userId) {
+        const deleteNote = await note.destroy();
+        return res.status(200).json({ success: true, note: deleteNote });
       }
       return res.status(401).json({ success: false, errors: [ { msg: 'Unauthorized' } ] });
     } catch (error) {
