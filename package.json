@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "doc": "jsdoc2md ./routes/api/note.js"
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
