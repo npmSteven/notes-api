@@ -32,7 +32,6 @@
     "uuid": "^8.1.0"
   },
   "devDependencies": {
-    "jsdoc-to-markdown": "^6.0.1",
     "nodemon": "^2.0.4"
   }
 }
