@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/StevenRafferty/todo_backend#readme",
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",

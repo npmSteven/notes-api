@@ -7,9 +7,6 @@ const Note = require('../../Models/Note');
 
 const router = express.Router();
 
-// Check if req.user and req.user.id
-// Check user
-
 // @route GET api/note
 // @desc Gets all of the available notes for that user
 // @access private
