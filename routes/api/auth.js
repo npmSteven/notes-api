@@ -1,74 +1,136 @@
 const express = require('express');
-const passport = require('passport');
-const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
+
+const UserModal = require('../../models/User');
+const registerValidation = require('../../validation/registerValidation');
+const loginValidation = require('../../validation/loginValidation');
+const auth = require('../../middleware/auth');
+const config = require('../../config');
 
 const router = express.Router();
 
-const User = require('../../Models/User');
 
-// @route POST api/auth/login
-// @desc Authenticates a preexisting user
-// @access public
+/**
+ * Create a user
+ * @property {string} username - The user's username
+ * @property {string} password - The user's password
+ */
 router.post(
   '/login',
-  passport.authenticate('local'),
-  (req, res) => {
-    return res.status(200).json({ msg: 'Logged in', success: true });
-  }
-);
-
-// @route POST api/auth/register
-// @desc Creates a user in the database
-// @access public
-router.post(
-  '/register',
-  [
-    check('username').exists({ checkFalsy: true, checkNull: true }),
-    check('email').isEmail().withMessage('Invalid email address'),
-    check('password').isLength({ min: 8, max: 255 }).withMessage('Password must be between 8 - 255 in length'),
-    check('confirmPassword').isLength({ min: 8, max: 255 }).withMessage('Password must be between 8 - 255 in length')
-  ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+    const { error } = loginValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message });
     }
-    const { username, email, password, confirmPassword } = req.body;
-    // Check if the passwords match
-    if (password !== confirmPassword) {
-      return res.status(422).json({ success: false, errors: [ { msg: 'Passwords must match', param: 'confirmPassword', location: 'body' } ] });
-    }
-    // Check if user already exists
-    const currentUser = await User.findOne({ where: { username } });
-    if (currentUser) {
-      return res.status(422).json({ success: false, errors: [ { msg: 'User already exists' } ] });
-    }
-    // Create the user
-    bcrypt.genSalt(10, (error, salt) => {
-      bcrypt.hash(password, salt, async (error, hash) => {
-        if (error) throw error;
-        try {
-          await User.create({ id: uuid.v4(), username, email, password: hash });
-          return res.status(200).json({ msg: 'Account has been created', success: true });
-        } catch (error) {
-          console.log('ERROR - auth.js - /register post: ', error);
-          return res.status(500).json({ success: false, errors: [ { msg: 'Internal server error' } ] });
+    const { username, password } = req.body;
+    try {
+      const user = await UserModal.findOne({ where: { username } });
+      if (!user) return res.status(401).json({ success: false, message: `Username doesn't exist` });
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(401).json({ success: false, message: 'Password is incorrect' });
+
+      const token = jwt.sign({ id: user.id }, config.jwt.secret, { expiresIn: 86400 });
+      if (!token) return res.status(500).json({ success: false, message: `Couldn't sign the token` });
+
+      return res.status(200).json({
+        success: true,
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
         }
       });
-    });
+    } catch (error) {
+      console.log('ERROR - auth.js - post - login: ', error);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
   }
 );
 
-// @route GET api/auth/logout
-// @desc Logout an authenticated user
-// @access public
+/**
+ * Authenticates a user
+ * @property {string} username - The user's username
+ * @property {string} email - The user's email
+ * @property {string} password - The user's password
+ */
+router.post(
+  '/register',
+  async (req, res) => {
+    const { error } = registerValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message });
+    }
+    const { username, email, password } = req.body;
+    try {
+      const user = await UserModal.findOne({ where: { username } });
+      if (user) return res.status(401).json({ success: false, message: 'Username already exists' });
+
+      const salt = await bcrypt.genSalt(10);
+      if (!salt) return res.status(500).json({ success: false, message: 'Something went wrong with bcrypt - salt' });
+
+      const hash = await bcrypt.hash(password, salt);
+      if (!hash) return res.status(500).json({ success: false, message: 'Something went wrong with bcrypt - hash' });
+
+      const newUser = await UserModal.create({
+        id: uuid.v4(),
+        username,
+        email,
+        password: hash
+      });
+      if (!newUser) return res.status(500).json({ success: false, message: 'Something went wrong with saving the user' });
+
+      const token = jwt.sign({ id: newUser.id }, config.jwt.secret, { expiresIn: 86400 });
+      if (!token) return res.status(500).json({ success: false, message: `Couldn't sign the token` });
+
+      return res.status(200).json({
+        success: true,
+        token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt
+        }
+      })
+
+    } catch (error) {
+      console.log('ERROR - auth.js - post - register: ', error);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  }
+);
+
+/**
+ * Get a user's details
+ */
 router.get(
-  '/logout',
-  (req, res) => {
-    req.logOut();
-    return res.status(200).json({ success: true, msg: 'Logged out' });
+  '/user',
+  auth,
+  async (req, res) => {
+    try {
+      const user = await UserModal.findByPk(req.user.id);
+      if (!user) return res.status(404).json({ success: false, message: 'Cannot find account' });
+      return res.json({
+        success: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        }
+      });
+    } catch (error) {
+      console.log('ERROR - auth.js - get - user: ', error);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
   }
 )
 

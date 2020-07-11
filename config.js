@@ -11,7 +11,7 @@ module.exports = {
   express: {
     port: process.env.PORT || 8080
   },
-  cookie: {
-    key: process.env.COOKIE_SECRET_KEY
+  jwt: {
+    secret: process.env.JWT_SECRET
   }
 };
