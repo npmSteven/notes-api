@@ -1,5 +1,5 @@
-# TODO Backend
-The todo backend will allow the frontend to auth(login/register) and save todos for each authed user
+# Notes Backend
+The notes backend will allow the frontend to auth(login/register) and save notes for each authed user
 
 ## Stack
 * nodejs
@@ -8,4 +8,4 @@ The todo backend will allow the frontend to auth(login/register) and save todos 
 
 ## Build
 * Install npm nodules `npm install`
-* Run application `npm start`
+* Run application `npm run start`
