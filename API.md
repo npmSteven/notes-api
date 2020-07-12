@@ -1,8 +1,11 @@
-## API
+# API
 
 Domain: `http://localhost:8080`
 
+## Auth Routes
+
 ### Register
+Registers a user to the database
 
 Method: `POST` 
 
@@ -34,6 +37,7 @@ Response data:
 ```
 
 ### Login
+Authenticate on the website
 
 Method: `POST` 
 
@@ -64,6 +68,7 @@ Response data (body):
 ```
 
 ### User
+Get the current users data
 
 Method: `GET` 
 
@@ -81,6 +86,152 @@ Response data:
     "email": "example@domain.com",
     "createdAt": "2020-07-11 23:31:18.774 +00:00",
     "updatedAt": "2020-07-11 23:31:18.774 +00:00"
+  }
+}
+```
+
+## Note Routes
+
+### Get Notes
+Get all of the notes for the authenticated user
+
+Method: `GET` 
+
+Endpoint: `/api/note`
+
+Expected data (header): `x-auth-token`: `token-here`
+
+Response data:
+```json
+{
+  "success": true,
+  "notes": [
+    {
+      "id": "2c70630c-9920-4e0a-92f6-c45a56193088",
+      "userId": "805d60af-4c7e-4112-8047-ea7e51b79ed2",
+      "title": "hello world",
+      "content": "whats going on",
+      "createdAt": "2020-06-24 14:46:38.607 +00:00",
+      "updatedAt": "2020-06-24 14:46:38.607 +00:00"
+    }
+  ]
+}
+```
+
+### Get Note
+Get a specific note for the authenticated user
+
+Method: `GET` 
+
+Endpoint: `/api/note/:id`
+
+Expected data (header): `x-auth-token`: `token-here`
+
+Response data:
+```json
+{
+  "success": true,
+  "note": {
+    "id": "26888a38-9703-46c2-9300-25b43210b8e7",
+    "userId": "805d60af-4c7e-4112-8047-ea7e51b79ed2",
+    "title": "title here",
+    "content": "content here",
+    "createdAt": "2020-07-11 23:56:39.869 +00:00",
+    "updatedAt": "2020-07-11 23:56:39.869 +00:00"
+  }
+}
+```
+
+### Add note
+Add a new note for the authenticated user
+
+Method: `POST` 
+
+Endpoint: `/api/note`
+
+Content-Type: `application/json`
+
+Expected data (header): `x-auth-token`: `token-here`
+
+Expected data (json):
+```json
+{
+	"title": "title here",
+	"content": "content here"
+}
+```
+
+Response data:
+```json
+{
+  "success": true,
+  "note": {
+    "id": "26888a38-9703-46c2-9300-25b43210b8e7",
+    "userId": "805d60af-4c7e-4112-8047-ea7e51b79ed2",
+    "title": "title here",
+    "content": "content here",
+    "updatedAt": "2020-07-11 23:56:39.869 +00:00",
+    "createdAt": "2020-07-11 23:56:39.869 +00:00"
+  }
+}
+```
+
+### Update Note
+Update a note for the authenticated user
+
+Method: `PATCH` 
+
+Endpoint: `/api/note/:id`
+
+Content-Type: `application/json`
+
+Expected data (header): `x-auth-token`: `token-here`
+
+Expected data (json):
+```json
+{
+	"title": "title here",
+	"content": "content here"
+}
+```
+
+Response data:
+```json
+{
+  "success": true,
+  "note": {
+    "id": "26888a38-9703-46c2-9300-25b43210b8e7",
+    "userId": "805d60af-4c7e-4112-8047-ea7e51b79ed2",
+    "title": "title here",
+    "content": "content here",
+    "createdAt": "2020-07-11 23:56:39.869 +00:00",
+    "updatedAt": "2020-07-11 23:56:39.869 +00:00"
+  }
+}
+```
+
+### Delete Note
+Delete a note for the authenticated user
+
+Method: `DELETE` 
+
+Endpoint: `/api/note/:id`
+
+Content-Type: `application/json`
+
+Expected data (header): `x-auth-token`: `token-here`
+
+Response data:
+```json
+{
+  "success": true,
+  "note": {
+    "id": "26888a38-9703-46c2-9300-25b43210b8e7",
+    "userId": "805d60af-4c7e-4112-8047-ea7e51b79ed2",
+    "title": "title here",
+    "content": "content here",
+    "createdAt": "2020-07-11 23:56:39.869 +00:00",
+    "updatedAt": "2020-07-11 23:56:39.869 +00:00"
   }
 }
 ```
