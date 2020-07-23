@@ -6,7 +6,6 @@ const Note = require('../../models/Note');
 const auth = require('../../middleware/auth');
 const { idValidation, addNoteValidation, updateNoteValidation } = require('../../validation/noteValidation');
 
-
 const router = express.Router();
 
 /**
@@ -38,7 +37,7 @@ router.get(
     }
     try {
       // Check if the note exists
-      const note = await Note.findByPk(req.params.id)
+      const note = await Note.findByPk(req.params.id);
       if (!note) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
       }
@@ -47,12 +46,12 @@ router.get(
         return res.status(200).json({ success: true, note });
       }
       return res.status(401).json({ success: false, message: 'Unauthorized' });
-    } catch (error) {
-      console.log('ERROR - note.js - / get notes: ', error);
+    } catch (err) {
+      console.log('ERROR - note.js - / get notes: ', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
-  }
-)
+  },
+);
 
 /**
  * Create a note for the authenticated user
@@ -68,20 +67,20 @@ router.post(
     if (error) {
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
-    const { title, content } = req.body
+    const { title, content } = req.body;
     try {
       const savedNote = await Note.create({
         id: uuid.v4(),
         userId: req.user.id,
         title,
-        content
+        content,
       });
       return res.status(200).json({ success: true, note: savedNote });
-    } catch (error) {
-      console.log('ERROR - note.js - / post', error);
+    } catch (err) {
+      console.log('ERROR - note.js - / post', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
-  }
+  },
 );
 
 /**
@@ -100,27 +99,27 @@ router.patch(
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
     const { id } = req.params;
-    const { title, content } = req.body
+    const { title, content } = req.body;
     try {
       // Check if the note exists in the database
       const note = await Note.findByPk(id);
       if (!note) {
-        return res.status(404).json({ success: false, message: `Note doesn't exist` });
+        return res.status(404).json({ success: false, message: 'Note does not exist' });
       }
       // Check if the user owns the note
       if (req.user.id === note.userId) {
         const updatedNote = await note.update({
           title,
-          content
+          content,
         });
         return res.status(200).json({ success: true, note: updatedNote });
       }
       return res.status(401).json({ success: false, message: 'Unauthorized' });
-    } catch (error) {
-      console.log('ERROR - note.js - / patch', error);
+    } catch (err) {
+      console.log('ERROR - note.js - / patch', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
-  }
+  },
 );
 
 /**
@@ -141,7 +140,7 @@ router.delete(
       // Check if the note exists in the database
       const note = await Note.findByPk(id);
       if (!note) {
-        return res.status(404).json({ success: false, message: `Note doesn't exist` });
+        return res.status(404).json({ success: false, message: 'Note does not exist' });
       }
       // Check if the user owns the note
       if (req.user.id === note.userId) {
@@ -149,11 +148,11 @@ router.delete(
         return res.status(200).json({ success: true, message: 'Note deleted' });
       }
       return res.status(401).json({ success: false, message: 'Unauthorized' });
-    } catch (error) {
-      console.log('ERROR - note.js - / patch', error);
+    } catch (err) {
+      console.log('ERROR - note.js - / patch', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
-  }
+  },
 );
 
 module.exports = router;

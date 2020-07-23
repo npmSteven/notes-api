@@ -1,7 +1,7 @@
 // Packages
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require("express-rate-limit");
+const rateLimit = require('express-rate-limit');
 
 // Files
 const config = require('./config');
@@ -31,9 +31,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authApiRoutes);
 app.use('/api/note', noteApiRoutes);
 
-// Run app
-init();
-
 async function init() {
   try {
     // Attempt a database connection
@@ -45,3 +42,6 @@ async function init() {
     console.log('ERROR - Failed init(): ', error);
   }
 }
+
+// Run app
+init();
