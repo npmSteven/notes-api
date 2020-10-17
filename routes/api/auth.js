@@ -11,7 +11,6 @@ const config = require('../../config');
 
 const router = express.Router();
 
-
 /**
  * Create a user
  * @property {string} username - The user's username
@@ -22,29 +21,31 @@ router.post(
   async (req, res) => {
     const { error } = loginValidation.validate(req.body);
     if (error) {
-      return res.status(400).json({ success: false, message: error.details[0].message });
+      return res.status(400).json({ success: false, payload: { message: error.details[0].message } });
     }
     const { username, password } = req.body;
     try {
       const user = await UserModal.findOne({ where: { username } });
-      if (!user) return res.status(401).json({ success: false, message: `Username doesn't exist` });
+      if (!user) return res.status(401).json({ success: false, payload: { message: `Username doesn't exist` } });
 
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(401).json({ success: false, message: 'Password is incorrect' });
+      if (!isMatch) return res.status(401).json({ success: false, payload: { message: 'Password is incorrect' } });
 
       const token = jwt.sign({ id: user.id }, config.jwt.secret, { expiresIn: 86400 });
-      if (!token) return res.status(500).json({ success: false, message: `Couldn't sign the token` });
+      if (!token) return res.status(500).json({ success: false, payload: { message: `Couldn't sign the token` } });
 
       return res.status(200).json({
         success: true,
-        token,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt
-        }
+        payload: {
+          token,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+          },
+        },
       });
     } catch (error) {
       console.log('ERROR - auth.js - post - login: ', error);
@@ -69,13 +70,13 @@ router.post(
     const { username, email, password } = req.body;
     try {
       const user = await UserModal.findOne({ where: { username } });
-      if (user) return res.status(401).json({ success: false, message: 'Username already exists' });
+      if (user) return res.status(401).json({ success: false, payload: { message: 'Username already exists' } });
 
       const salt = await bcrypt.genSalt(10);
-      if (!salt) return res.status(500).json({ success: false, message: 'Something went wrong with bcrypt - salt' });
+      if (!salt) return res.status(500).json({ success: false, payload: { message: 'Something went wrong with bcrypt - salt' } });
 
       const hash = await bcrypt.hash(password, salt);
-      if (!hash) return res.status(500).json({ success: false, message: 'Something went wrong with bcrypt - hash' });
+      if (!hash) return res.status(500).json({ success: false, payload: { message: 'Something went wrong with bcrypt - hash' } });
 
       const newUser = await UserModal.create({
         id: uuid.v4(),
@@ -83,26 +84,27 @@ router.post(
         email,
         password: hash
       });
-      if (!newUser) return res.status(500).json({ success: false, message: 'Something went wrong with saving the user' });
+      if (!newUser) return res.status(500).json({ success: false, payload: { message: 'Something went wrong with saving the user' } });
 
       const token = jwt.sign({ id: newUser.id }, config.jwt.secret, { expiresIn: 86400 });
-      if (!token) return res.status(500).json({ success: false, message: `Couldn't sign the token` });
+      if (!token) return res.status(500).json({ success: false, payload: { message: `Couldn't sign the token` } });
 
       return res.status(200).json({
         success: true,
-        token,
-        user: {
-          id: newUser.id,
-          username: newUser.username,
-          email: newUser.email,
-          createdAt: newUser.createdAt,
-          updatedAt: newUser.updatedAt
-        }
-      })
-
+        payload: {
+          token,
+          user: {
+            id: newUser.id,
+            username: newUser.username,
+            email: newUser.email,
+            createdAt: newUser.createdAt,
+            updatedAt: newUser.updatedAt
+          },
+        },
+      });
     } catch (error) {
       console.log('ERROR - auth.js - post - register: ', error);
-      return res.status(500).json({ success: false, message: 'Internal server error' });
+      return res.status(500).json({ success: false, payload: { message: 'Internal server error' } });
     }
   }
 );
@@ -116,10 +118,10 @@ router.get(
   async (req, res) => {
     try {
       const user = await UserModal.findByPk(req.user.id);
-      if (!user) return res.status(404).json({ success: false, message: 'Cannot find account' });
+      if (!user) return res.status(404).json({ success: false, payload: { message: 'Cannot find account' } });
       return res.json({
         success: true,
-        user: {
+        payload: {
           id: user.id,
           username: user.username,
           email: user.email,
@@ -129,7 +131,7 @@ router.get(
       });
     } catch (error) {
       console.log('ERROR - auth.js - get - user: ', error);
-      return res.status(500).json({ success: false, message: 'Internal server error' });
+      return res.status(500).json({ success: false, payload: { message: 'Internal server error' } });
     }
   }
 )

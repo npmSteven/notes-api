@@ -10,7 +10,8 @@ const sequelize = new Sequelize(db.url, {
       require: true,
       rejectUnauthorized: false
     }
-  }
+  },
+  logging: false,
 });
 
 // Authenticate to the database
