@@ -1,16 +1,20 @@
 const Joi = require('@hapi/joi');
 
 module.exports.idValidation = Joi.object({
-  id: Joi.string().uuid().required()
+  id: Joi.string().uuid().required(),
 });
 
-module.exports.addNoteValidation = Joi.object({
+module.exports.addValidation = Joi.object({
   title: Joi.string().min(1).required(),
-  content: Joi.string().min(1).required()
+  body: Joi.string().min(1).required(),
 });
 
-module.exports.updateNoteValidation = Joi.object({
+module.exports.updateValidation = Joi.object({
   id: Joi.string().uuid().required(),
   title: Joi.string().min(1).required(),
-  content: Joi.string().min(1).required()
+  body: Joi.string().min(1).required(),
+});
+
+module.exports.bulkDelete = Joi.object({
+  noteIds: Joi.array().items(Joi.string().uuid().required()).min(1).required(),
 });

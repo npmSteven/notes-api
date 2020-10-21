@@ -1,7 +1,7 @@
 // Packages
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require("express-rate-limit");
+const rateLimit = require('express-rate-limit');
 
 // Files
 const config = require('./config');
@@ -18,8 +18,8 @@ app.use(cors());
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minutes
-  max: 50, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests, wait a minute until you can query again'
+  max: 50, // limit each IP to 50 requests per windowMs
+  message: 'Too many requests, wait a minute until you can query again',
 });
 app.use(limiter);
 
@@ -30,9 +30,6 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authApiRoutes);
 app.use('/api/note', noteApiRoutes);
-
-// Run app
-init();
 
 async function init() {
   try {
@@ -45,3 +42,6 @@ async function init() {
     console.log('ERROR - Failed init(): ', error);
   }
 }
+
+// Run app
+init();

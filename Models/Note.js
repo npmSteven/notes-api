@@ -1,32 +1,32 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db').sequelize();
 
 const Note = sequelize.define('note', {
   id: {
     type: DataTypes.UUIDV4,
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
   },
   userId: {
     type: DataTypes.UUIDV4,
-    allowNull: false
+    allowNull: false,
   },
   title: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
-  content: {
+  body: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   createdAt: {
     allowNull: false,
-    type: DataTypes.DATE
+    type: DataTypes.DATE,
   },
   updatedAt: {
     allowNull: false,
-    type: DataTypes.DATE
-  }
+    type: DataTypes.DATE,
+  },
 });
 
 module.exports = Note;
