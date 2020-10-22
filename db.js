@@ -19,8 +19,8 @@ module.exports.connect = async () => {
   try {
     await sequelize.authenticate();
     console.log('Connected to DB');
-  } catch (error) {
-    console.error('Failed to connect to DB', error);
+  } catch (err) {
+    console.error('Failed to connect to DB', err);
     process.exit(1);
   }
 };

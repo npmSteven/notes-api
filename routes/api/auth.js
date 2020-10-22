@@ -7,6 +7,12 @@ const UserModal = require('../../models/User');
 const registerValidation = require('../../validation/registerValidation');
 const loginValidation = require('../../validation/loginValidation');
 const config = require('../../config');
+const { generateHash } = require('../../common/auth');
+const auth = require('../../middleware/auth');
+const lib = require('../../lib');
+const { userUpdatePasswordValidation } = require('../../validation/userValidation');
+const User = require('../../models/User');
+const { getUser } = require('../../common/user');
 
 const router = express.Router();
 
@@ -73,7 +79,7 @@ router.post('/login', async (req, res) => {
     console.log('ERROR - auth.js - post - login: ', err);
     return res
       .status(500)
-      .json({ success: false, message: 'Internal server error' });
+      .json({ success: false, payload: { message: 'Internal server error' } });
   }
 });
 
@@ -88,7 +94,7 @@ router.post('/register', async (req, res) => {
   if (error) {
     return res
       .status(400)
-      .json({ success: false, message: error.details[0].message });
+      .json({ success: false, payload: { message: error.details[0].message } });
   }
   const { username, email, password } = req.body;
   try {
@@ -102,25 +108,7 @@ router.post('/register', async (req, res) => {
         });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    if (!salt) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          payload: { message: 'Something went wrong with bcrypt - salt' },
-        });
-    }
-
-    const hash = await bcrypt.hash(password, salt);
-    if (!hash) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          payload: { message: 'Something went wrong with bcrypt - hash' },
-        });
-    }
+    const hash = await generateHash(password);
 
     const newUser = await UserModal.create({
       id: uuid.v4(),
@@ -153,17 +141,38 @@ router.post('/register', async (req, res) => {
       success: true,
       payload: {
         token,
-        user: {
-          id: newUser.id,
-          username: newUser.username,
-          email: newUser.email,
-          createdAt: newUser.createdAt,
-          updatedAt: newUser.updatedAt,
-        },
+        user: getUser(user),
       },
     });
   } catch (err) {
     console.log('ERROR - auth.js - post - register: ', err);
+    return res
+      .status(500)
+      .json({ success: false, payload: { message: 'Internal server error' } });
+  }
+});
+
+// Update password
+router.put('/password', auth, lib.validateUser, async (req, res) => {
+  const { error } = userUpdatePasswordValidation.validate(req.body);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, payload: { message: error.details[0].message } });
+  }
+  try {
+    const hash = await generateHash(req.body.password);
+  
+    const user = await User.findByPk(req.user.id);
+  
+    const updatedUser = await user.update({ password: hash });
+  
+    return res.status(200).json({
+      success: true,
+      payload: getUser(updatedUser),
+    });
+  } catch (err) {
+    console.log('ERROR - auth.js - put - password: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });

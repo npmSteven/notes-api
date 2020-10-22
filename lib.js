@@ -6,32 +6,18 @@ module.exports = {
       // Check if the user who is authed exists in the database
       const user = await User.findByPk(req.user.id);
       if (!user) {
-        return res
-          .status(404)
-          .json({
-            success: false,
-            payload: { message: 'User does not exist' },
-          });
+        return res.status(404).json({
+          success: false,
+          payload: { message: 'User does not exist' },
+        });
       }
       return next();
-    } catch (error) {
-      console.error('ERROR - lib.js - validateUser(): ', error);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          payload: { message: 'Internal server error' },
-        });
+    } catch (err) {
+      console.error('ERROR - lib.js - validateUser(): ', err);
+      return res.status(500).json({
+        success: false,
+        payload: { message: 'Internal server error' },
+      });
     }
-  },
-  getUser: (user) => {
-    const { id, username, email, createdAt, updatedAt } = user;
-    return {
-      id,
-      username,
-      email,
-      createdAt,
-      updatedAt,
-    };
   },
 };

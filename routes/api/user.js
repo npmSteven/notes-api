@@ -6,7 +6,7 @@ const lib = require('../../lib');
 const auth = require('../../middleware/auth');
 const Note = require('../../models/Note');
 const User = require('../../models/User');
-const { update } = require('../../validation/userValidation');
+const { userUpdateValidation } = require('../../validation/userValidation');
 
 const router = express.Router();
 
@@ -63,13 +63,13 @@ router.delete('/', auth, lib.validateUser, async (req, res) => {
   }
 });
 
-// Update password
+// Update user
 router.put('/', auth, lib.validateUser, async (req, res) => {
-  const { error } = update.validate(req.body);
+  const { error } = userUpdateValidation.validate(req.body);
   if (error) {
     return res
       .status(400)
-      .json({ success: false, message: error.details[0].message });
+      .json({ success: false, payload: { message: error.details[0].message } });
   }
   const { username, email } = req.body;
   try {
