@@ -6,7 +6,6 @@ const uuid = require('uuid');
 const UserModal = require('../../models/User');
 const registerValidation = require('../../validation/registerValidation');
 const loginValidation = require('../../validation/loginValidation');
-const auth = require('../../middleware/auth');
 const config = require('../../config');
 
 const router = express.Router();
@@ -165,35 +164,6 @@ router.post('/register', async (req, res) => {
     });
   } catch (err) {
     console.log('ERROR - auth.js - post - register: ', err);
-    return res
-      .status(500)
-      .json({ success: false, payload: { message: 'Internal server error' } });
-  }
-});
-
-/**
- * Get a user's details
- */
-router.get('/user', auth, async (req, res) => {
-  try {
-    const user = await UserModal.findByPk(req.user.id);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, payload: { message: 'Cannot find account' } });
-    }
-    return res.json({
-      success: true,
-      payload: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
-    });
-  } catch (err) {
-    console.log('ERROR - auth.js - get - user: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });

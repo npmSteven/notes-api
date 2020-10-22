@@ -2,15 +2,15 @@ const express = require('express');
 const uuid = require('uuid');
 
 const lib = require('../../lib');
-const Note = require('../../models/Note');
 const auth = require('../../middleware/auth');
+const Note = require('../../models/Note');
 const {
-  idValidation,
   addValidation,
   updateValidation,
   bulkDelete,
 } = require('../../validation/noteValidation');
 const { deleteNotes } = require('../../common/note');
+const { idValidation } = require('../../validation/commonValidation');
 
 const router = express.Router();
 

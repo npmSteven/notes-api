@@ -8,14 +8,20 @@ module.exports = {
       if (!user) {
         return res
           .status(404)
-          .json({ success: false, errors: [{ msg: 'User does not exist' }] });
+          .json({
+            success: false,
+            payload: { message: 'User does not exist' },
+          });
       }
       return next();
     } catch (error) {
       console.error('ERROR - lib.js - validateUser(): ', error);
       return res
         .status(500)
-        .json({ success: false, errors: [{ msg: 'Internal server error' }] });
+        .json({
+          success: false,
+          payload: { message: 'Internal server error' },
+        });
     }
   },
   getUser: (user) => {

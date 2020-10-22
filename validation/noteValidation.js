@@ -1,9 +1,5 @@
 const Joi = require('@hapi/joi');
 
-module.exports.idValidation = Joi.object({
-  id: Joi.string().uuid().required(),
-});
-
 module.exports.addValidation = Joi.object({
   title: Joi.string().min(1).required(),
   body: Joi.string().min(1).required(),
