@@ -136,8 +136,6 @@ router.post('/register', async (req, res) => {
         });
     }
 
-    console.log(JSON.stringify(newUser, null, 2));
-
     return res.status(200).json({
       success: true,
       payload: {
