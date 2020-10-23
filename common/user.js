@@ -1,4 +1,4 @@
-module.exports.getUser = (user) => ({
+module.exports.sanitiseUser = (user) => ({
   id: user.id,
   firstName: user.firstName,
   lastName: user.lastName,

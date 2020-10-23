@@ -13,13 +13,12 @@ const {
   userUpdatePasswordValidation,
 } = require('../../validation/userValidation');
 const User = require('../../models/User');
-const { getUser, sanitiseEmail } = require('../../common/user');
+const { sanitiseUser, sanitiseEmail } = require('../../common/user');
 
 const router = express.Router();
 
 /**
  * Create a user
- * @property {string} username - The user's username
  * @property {string} password - The user's password
  */
 router.post('/login', async (req, res) => {
@@ -61,7 +60,7 @@ router.post('/login', async (req, res) => {
       success: true,
       payload: {
         token,
-        user: getUser(user),
+        user: sanitiseUser(user),
       },
     });
   } catch (err) {
@@ -74,7 +73,6 @@ router.post('/login', async (req, res) => {
 
 /**
  * Authenticates a user
- * @property {string} username - The user's username
  * @property {string} email - The user's email
  * @property {string} password - The user's password
  */
@@ -126,7 +124,7 @@ router.post('/register', async (req, res) => {
       success: true,
       payload: {
         token,
-        user: getUser(newUser),
+        user: sanitiseUser(newUser),
       },
     });
   } catch (err) {
@@ -164,7 +162,7 @@ router.put('/password', auth, lib.validateUser, async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      payload: getUser(updatedUser),
+      payload: sanitiseUser(updatedUser),
     });
   } catch (err) {
     console.log('ERROR - auth.js - put - password: ', err);

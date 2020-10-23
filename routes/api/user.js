@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { deleteNotes } = require('../../common/note');
-const { getUser, sanitiseEmail } = require('../../common/user');
+const { sanitiseUser, sanitiseEmail } = require('../../common/user');
 const lib = require('../../lib');
 const auth = require('../../middleware/auth');
 const Note = require('../../models/Note');
@@ -23,7 +23,7 @@ router.get('/', auth, async (req, res) => {
     }
     return res.json({
       success: true,
-      payload: getUser(user),
+      payload: sanitiseUser(user),
     });
   } catch (err) {
     console.log('ERROR - user.js - get - user: ', err);
@@ -54,7 +54,7 @@ router.delete('/', auth, lib.validateUser, async (req, res) => {
 
     await user.destroy();
 
-    return res.status(200).json({ success: true, payload: getUser(user) });
+    return res.status(200).json({ success: true, payload: sanitiseUser(user) });
   } catch (err) {
     console.log('ERROR - user.js - delete - user: ', err);
     return res
@@ -89,7 +89,7 @@ router.put('/', auth, lib.validateUser, async (req, res) => {
 
     return res
       .status(200)
-      .json({ success: true, payload: getUser(updatedUser) });
+      .json({ success: true, payload: sanitiseUser(updatedUser) });
   } catch (err) {
     console.log('ERROR - user.js - put - user: ', err);
     return res
