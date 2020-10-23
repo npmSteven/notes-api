@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 
-const UserModal = require('../../models/User');
 const registerValidation = require('../../validation/registerValidation');
 const loginValidation = require('../../validation/loginValidation');
 const config = require('../../config');
@@ -30,7 +29,7 @@ router.post('/login', async (req, res) => {
   }
   const { username, password } = req.body;
   try {
-    const user = await UserModal.findOne({ where: { username } });
+    const user = await User.findOne({ where: { username } });
     if (!user) {
       return res
         .status(401)
@@ -98,7 +97,7 @@ router.post('/register', async (req, res) => {
   }
   const { username, email, password } = req.body;
   try {
-    const user = await UserModal.findOne({ where: { username } });
+    const user = await User.findOne({ where: { username } });
     if (user) {
       return res
         .status(401)
@@ -110,7 +109,7 @@ router.post('/register', async (req, res) => {
 
     const hash = await generateHash(password);
 
-    const newUser = await UserModal.create({
+    const newUser = await User.create({
       id: uuid.v4(),
       username,
       email,
@@ -141,7 +140,7 @@ router.post('/register', async (req, res) => {
       success: true,
       payload: {
         token,
-        user: getUser(user),
+        user: getUser(newUser),
       },
     });
   } catch (err) {
