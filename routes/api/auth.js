@@ -160,12 +160,24 @@ router.put('/password', auth, lib.validateUser, async (req, res) => {
       .json({ success: false, payload: { message: error.details[0].message } });
   }
   try {
-    const hash = await generateHash(req.body.password);
-  
     const user = await User.findByPk(req.user.id);
-  
+
+    const { currentPassword, newPassword } = req.body;
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({
+          success: false,
+          payload: { message: 'Current password is incorrect' },
+        });
+    }
+
+    const hash = await generateHash(newPassword);
+
     const updatedUser = await user.update({ password: hash });
-  
+
     return res.status(200).json({
       success: true,
       payload: getUser(updatedUser),

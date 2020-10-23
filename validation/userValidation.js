@@ -8,5 +8,6 @@ module.exports.userUpdateValidation = Joi.object({
 });
 
 module.exports.userUpdatePasswordValidation = Joi.object({
-  password: Joi.string().min(8).max(255).required(),
+  currentPassword: Joi.string().min(8).max(255).required(),
+  newPassword: Joi.string().min(8).max(255).required(),
 });
