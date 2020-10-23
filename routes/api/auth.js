@@ -9,9 +9,11 @@ const config = require('../../config');
 const { generateHash } = require('../../common/auth');
 const auth = require('../../middleware/auth');
 const lib = require('../../lib');
-const { userUpdatePasswordValidation } = require('../../validation/userValidation');
+const {
+  userUpdatePasswordValidation,
+} = require('../../validation/userValidation');
 const User = require('../../models/User');
-const { getUser } = require('../../common/user');
+const { getUser, sanitiseEmail } = require('../../common/user');
 
 const router = express.Router();
 
@@ -27,51 +29,39 @@ router.post('/login', async (req, res) => {
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email: sanitiseEmail(email) } });
     if (!user) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          payload: { message: 'Username doesn\'t exist' },
-        });
+      return res.status(401).json({
+        success: false,
+        payload: { message: "User doesn't exist" },
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          payload: { message: 'Password is incorrect' },
-        });
+      return res.status(401).json({
+        success: false,
+        payload: { message: 'Password is incorrect' },
+      });
     }
 
     const token = jwt.sign({ id: user.id }, config.jwt.secret, {
       expiresIn: 86400,
     });
     if (!token) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          payload: { message: 'Couldn\'t sign the token' },
-        });
+      return res.status(500).json({
+        success: false,
+        payload: { message: "Couldn't sign the token" },
+      });
     }
 
     return res.status(200).json({
       success: true,
       payload: {
         token,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
+        user: getUser(user),
       },
     });
   } catch (err) {
@@ -95,45 +85,41 @@ router.post('/register', async (req, res) => {
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { username, email, password } = req.body;
+  const { firstName, lastName, password } = req.body;
+  const email = sanitiseEmail(req.body.email);
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email } });
     if (user) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          payload: { message: 'Username already exists' },
-        });
+      return res.status(401).json({
+        success: false,
+        payload: { message: 'User already exists' },
+      });
     }
 
     const hash = await generateHash(password);
 
     const newUser = await User.create({
       id: uuid.v4(),
-      username,
+      firstName,
+      lastName,
       email,
       password: hash,
     });
     if (!newUser) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          payload: { message: 'Something went wrong with saving the user' },
-        });
+      return res.status(500).json({
+        success: false,
+        payload: { message: 'Something went wrong with saving the user' },
+      });
     }
 
     const token = jwt.sign({ id: newUser.id }, config.jwt.secret, {
       expiresIn: 86400,
     });
     if (!token) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          payload: { message: 'Couldn\'t sign the token' },
-        });
+      return res.status(500).json({
+        success: false,
+        payload: { message: "Couldn't sign the token" },
+      });
     }
 
     return res.status(200).json({
@@ -166,12 +152,10 @@ router.put('/password', auth, lib.validateUser, async (req, res) => {
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          payload: { message: 'Current password is incorrect' },
-        });
+      return res.status(401).json({
+        success: false,
+        payload: { message: 'Current password is incorrect' },
+      });
     }
 
     const hash = await generateHash(newPassword);

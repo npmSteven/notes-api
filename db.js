@@ -5,12 +5,6 @@ const { db } = require('./config');
 // Set the credentials of the database and options to connect
 const sequelize = new Sequelize(db.url, {
   protocol: 'postgres',
-  // dialectOptions: {
-  //   ssl: {
-  //     require: false,
-  //     rejectUnauthorized: false,
-  //   },
-  // },
   logging: false,
 });
 

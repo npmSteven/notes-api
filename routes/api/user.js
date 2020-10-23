@@ -1,7 +1,7 @@
 const express = require('express');
-const { deleteNotes } = require('../../common/note');
-const { getUser } = require('../../common/user');
 
+const { deleteNotes } = require('../../common/note');
+const { getUser, sanitiseEmail } = require('../../common/user');
 const lib = require('../../lib');
 const auth = require('../../middleware/auth');
 const Note = require('../../models/Note');
@@ -71,22 +71,25 @@ router.put('/', auth, lib.validateUser, async (req, res) => {
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { username, email } = req.body;
+  const { firstName, lastName } = req.body;
+  const email = sanitiseEmail(req.body.email);
   try {
-    const userUsername = await User.findOne({ where: { username } });
+    const userEmail = await User.findOne({ where: { email } });
 
-    if (userUsername) {
+    if (userEmail && userEmail.id !== req.user.id) {
       return res.status(400).json({
         success: false,
-        payload: { message: 'Username already exists' },
+        payload: { message: 'User already exists' },
       });
     }
 
-    const user = await User.findOne({ where: { id: req.user.id } });
+    const user = await User.findByPk(req.user.id);
 
-    const updatedUser = await user.update({ username, email });
+    const updatedUser = await user.update({ firstName, lastName, email });
 
-    return res.status(200).json({ success: true, payload: getUser(updatedUser) });
+    return res
+      .status(200)
+      .json({ success: true, payload: getUser(updatedUser) });
   } catch (err) {
     console.log('ERROR - user.js - put - user: ', err);
     return res

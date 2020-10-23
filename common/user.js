@@ -1,7 +1,10 @@
 module.exports.getUser = (user) => ({
   id: user.id,
-  username: user.username,
+  firstName: user.firstName,
+  lastName: user.lastName,
   email: user.email,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
+
+module.exports.sanitiseEmail = (email) => email.toLowerCase();

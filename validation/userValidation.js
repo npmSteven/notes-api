@@ -1,7 +1,8 @@
 const Joi = require('@hapi/joi');
 
 module.exports.userUpdateValidation = Joi.object({
-  username: Joi.string().alphanum().min(2).max(30).required(),
+  firstName: Joi.string().alphanum().min(2).max(30).required(),
+  lastName: Joi.string().alphanum().min(2).max(30).required(),
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: ['com', 'net'] })
     .required(),
