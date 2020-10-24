@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { deleteNotes } = require('../../common/note');
-const { sanitiseUser, sanitiseEmail } = require('../../common/user');
+const { sanitiseUser } = require('../../common/user');
 const lib = require('../../lib');
 const auth = require('../../middleware/auth');
 const Note = require('../../models/Note');
@@ -65,14 +65,13 @@ router.delete('/', auth, lib.validateUser, async (req, res) => {
 
 // Update user
 router.put('/', auth, lib.validateUser, async (req, res) => {
-  const { error } = userUpdateValidation.validate(req.body);
+  const { error, value } = userUpdateValidation.validate(req.body);
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { firstName, lastName } = req.body;
-  const email = sanitiseEmail(req.body.email);
+  const { firstName, lastName, email } = value;
   try {
     const userEmail = await User.findOne({ where: { email } });
 

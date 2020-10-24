@@ -6,5 +6,3 @@ module.exports.sanitiseUser = (user) => ({
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
-
-module.exports.sanitiseEmail = (email) => email.toLowerCase();

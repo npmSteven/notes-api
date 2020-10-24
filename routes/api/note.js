@@ -35,15 +35,16 @@ router.get('/', auth, lib.validateUser, async (req, res) => {
  * @param {uuid} id - The id of the note
  */
 router.get('/:id', auth, lib.validateUser, async (req, res) => {
-  const { error } = idValidation.validate(req.params);
+  const { error, value } = idValidation.validate(req.params);
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
+  const { id } = value;
   try {
     // Check if the note exists
-    const note = await Note.findByPk(req.params.id);
+    const note = await Note.findByPk(id);
     if (!note) {
       return res
         .status(401)
@@ -70,13 +71,13 @@ router.get('/:id', auth, lib.validateUser, async (req, res) => {
  * @property {string} content - The content of the note
  */
 router.post('/', auth, lib.validateUser, async (req, res) => {
-  const { error } = addValidation.validate(req.body);
+  const { error, value } = addValidation.validate(req.body);
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { title, body } = req.body;
+  const { title, body } = value;
   try {
     const savedNote = await Note.create({
       id: uuid.v4(),
@@ -100,14 +101,13 @@ router.post('/', auth, lib.validateUser, async (req, res) => {
  * @property {string} content - The content of the note
  */
 router.put('/:id', auth, lib.validateUser, async (req, res) => {
-  const { error } = updateValidation.validate({ ...req.params, ...req.body });
+  const { error, value } = updateValidation.validate({ ...req.params, ...req.body });
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { id } = req.params;
-  const { title, content } = req.body;
+  const { id, title, content } = value;
   try {
     // Check if the note exists in the database
     const note = await Note.findByPk(id);
@@ -140,27 +140,27 @@ router.put('/:id', auth, lib.validateUser, async (req, res) => {
  * @param {uuid} id - The id of the note
  */
 router.delete('/:id', auth, lib.validateUser, async (req, res) => {
-  const { error } = idValidation.validate(req.params);
+  const { error, value } = idValidation.validate(req.params);
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { id } = req.params;
+  const { id } = value;
   try {
     // Check if the note exists in the database
     const note = await Note.findByPk(id);
     if (!note) {
       return res
         .status(404)
-        .json({ success: false, payload: { message: `Note doesn't exist` } });
+        .json({ success: false, payload: { message: 'Note does not exist' } });
     }
     // Check if the user owns the note
     if (req.user.id === note.userId) {
       await note.destroy();
       return res
         .status(200)
-        .json({ success: true, payload: { message: 'Note deleted' } });
+        .json({ success: true, payload: note });
     }
     return res
       .status(401)
@@ -174,7 +174,7 @@ router.delete('/:id', auth, lib.validateUser, async (req, res) => {
 });
 
 router.delete('/', auth, lib.validateUser, async (req, res) => {
-  const { error } = bulkDelete.validate(req.body);
+  const { error, value } = bulkDelete.validate(req.body);
   if (error) {
     return res.status(400).json({
       success: false,
@@ -183,7 +183,7 @@ router.delete('/', auth, lib.validateUser, async (req, res) => {
       },
     });
   }
-  const { noteIds } = req.body;
+  const { noteIds } = value;
 
   try {
     const hasDeletedNotes = await deleteNotes(noteIds, req.user.id);

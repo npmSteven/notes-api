@@ -13,7 +13,7 @@ const {
   userUpdatePasswordValidation,
 } = require('../../validation/userValidation');
 const User = require('../../models/User');
-const { sanitiseUser, sanitiseEmail } = require('../../common/user');
+const { sanitiseUser } = require('../../common/user');
 
 const router = express.Router();
 
@@ -22,15 +22,15 @@ const router = express.Router();
  * @property {string} password - The user's password
  */
 router.post('/login', async (req, res) => {
-  const { error } = loginValidation.validate(req.body);
+  const { error, value } = loginValidation.validate(req.body);
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { email, password } = req.body;
+  const { email, password } = value;
   try {
-    const user = await User.findOne({ where: { email: sanitiseEmail(email) } });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -77,14 +77,13 @@ router.post('/login', async (req, res) => {
  * @property {string} password - The user's password
  */
 router.post('/register', async (req, res) => {
-  const { error } = registerValidation.validate(req.body);
+  const { error, value } = registerValidation.validate(req.body);
   if (error) {
     return res
       .status(400)
       .json({ success: false, payload: { message: error.details[0].message } });
   }
-  const { firstName, lastName, password } = req.body;
-  const email = sanitiseEmail(req.body.email);
+  const { firstName, lastName, password, email } = value;
   try {
     const user = await User.findOne({ where: { email } });
     if (user) {
@@ -137,7 +136,7 @@ router.post('/register', async (req, res) => {
 
 // Update password
 router.put('/password', auth, lib.validateUser, async (req, res) => {
-  const { error } = userUpdatePasswordValidation.validate(req.body);
+  const { error, value } = userUpdatePasswordValidation.validate(req.body);
   if (error) {
     return res
       .status(400)
@@ -146,7 +145,7 @@ router.put('/password', auth, lib.validateUser, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
 
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = value;
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
