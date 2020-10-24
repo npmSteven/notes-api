@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const User = require('./models/User');
 
 module.exports = {
@@ -20,7 +22,7 @@ module.exports = {
       });
     }
   },
-  getCurrentDate: () => `${new Date()}`,
+  getCurrentDate: () => new Date().toISOString(),
   paginate: ({ page = 0, pageSize = 10 }) => {
     const offset = page * pageSize;
     const limit = pageSize;
@@ -29,4 +31,6 @@ module.exports = {
       limit,
     };
   },
+  generateToken: () => crypto.randomBytes(16).toString('hex'),
+  toTimestamp: (iso) => new Date(iso).getTime(),
 };

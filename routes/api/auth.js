@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
+const { DateTime } = require('luxon');
 
 const registerValidation = require('../../validation/registerValidation');
 const loginValidation = require('../../validation/loginValidation');
@@ -14,7 +15,8 @@ const {
 } = require('../../validation/userValidation');
 const User = require('../../models/User');
 const { sanitiseUser } = require('../../common/user');
-const { getCurrentDate } = require('../../lib');
+const { getCurrentDate, generateToken } = require('../../lib');
+const Token = require('../../models/Token');
 
 const router = express.Router();
 
@@ -44,6 +46,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({
         success: false,
         payload: { message: 'Password is incorrect' },
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        payload: { message: 'User not yet verified' },
       });
     }
 
@@ -103,6 +112,7 @@ router.post('/register', async (req, res) => {
       firstName,
       lastName,
       email,
+      isVerified: false,
       password: hash,
       createdAt: currentDate,
       updatedAt: currentDate,
@@ -114,22 +124,17 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: newUser.id }, config.jwt.secret, {
-      expiresIn: 86400,
+    await Token.create({
+      id: uuid.v4(),
+      userId: newUser.id,
+      token: generateToken(),
+      expires: DateTime.fromISO(currentDate).plus({ hour: 1 }).toISO(),
+      createdAt: currentDate,
     });
-    if (!token) {
-      return res.status(500).json({
-        success: false,
-        payload: { message: "Couldn't sign the token" },
-      });
-    }
 
     return res.status(200).json({
       success: true,
-      payload: {
-        token,
-        user: sanitiseUser(newUser),
-      },
+      payload: sanitiseUser(newUser),
     });
   } catch (err) {
     console.log('ERROR - auth.js - post - register: ', err);

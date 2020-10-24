@@ -3,6 +3,7 @@ module.exports.sanitiseUser = (user) => ({
   firstName: user.firstName,
   lastName: user.lastName,
   email: user.email,
+  isVerified: user.isVerified,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });

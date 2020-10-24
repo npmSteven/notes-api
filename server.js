@@ -10,6 +10,7 @@ const db = require('./db');
 const authApiRoutes = require('./routes/api/auth');
 const noteApiRoutes = require('./routes/api/note');
 const userApiRoutes = require('./routes/api/user');
+const tokenApiRoutes = require('./routes/api/token');
 
 // Init express
 const app = express();
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/auth', authApiRoutes);
 app.use('/api/v1/note', noteApiRoutes);
 app.use('/api/v1/user', userApiRoutes);
+app.use('/api/v1/token', tokenApiRoutes);
 
 async function init() {
   try {

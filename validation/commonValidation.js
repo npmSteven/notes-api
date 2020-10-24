@@ -29,3 +29,5 @@ module.exports.pageSize = Joi.number().greater(-1).optional();
 module.exports.orderBy = Joi.string().valid('updatedAt', 'createdAt').optional();
 
 module.exports.order = Joi.string().valid('ASC', 'DESC').optional();
+
+module.exports.token = Joi.string().hex().min(32).max(32).required();
