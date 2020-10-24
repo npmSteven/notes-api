@@ -11,6 +11,8 @@ const {
 } = require('../../validation/noteValidation');
 const { deleteNotes } = require('../../common/note');
 const { idValidation } = require('../../validation/commonValidation');
+const { getCurrentDate, paginate } = require('../../lib');
+const arrayValidation = require('../../validation/arrayValidation');
 
 const router = express.Router();
 
@@ -18,9 +20,24 @@ const router = express.Router();
  * Get all notes of the authenticated user
  */
 router.get('/', auth, lib.validateUser, async (req, res) => {
+  const { error, value } = arrayValidation.validate(req.query);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, payload: { message: error.details[0].message } });
+  }
+
+  const {
+    order, orderBy, page, pageSize,
+  } = value;
   try {
     // Check if the user has any notes
-    const notes = await Note.findAll({ where: { userId: req.user.id } });
+    const notes = await Note.findAll({
+      where: { userId: req.user.id },
+      order: [[orderBy || 'createdAt', order || 'DESC']],
+      ...paginate({ page, pageSize }),
+    });
+
     return res.status(200).json({ success: true, payload: notes });
   } catch (err) {
     console.log('ERROR - note.js - / get notes: ', err);
@@ -78,12 +95,15 @@ router.post('/', auth, lib.validateUser, async (req, res) => {
       .json({ success: false, payload: { message: error.details[0].message } });
   }
   const { title, body } = value;
+  const currentDate = getCurrentDate();
   try {
     const savedNote = await Note.create({
       id: uuid.v4(),
       userId: req.user.id,
       title,
       body,
+      updatedAt: currentDate,
+      createdAt: currentDate,
     });
     return res.status(200).json({ success: true, payload: savedNote });
   } catch (err) {
@@ -101,7 +121,10 @@ router.post('/', auth, lib.validateUser, async (req, res) => {
  * @property {string} content - The content of the note
  */
 router.put('/:id', auth, lib.validateUser, async (req, res) => {
-  const { error, value } = updateValidation.validate({ ...req.params, ...req.body });
+  const { error, value } = updateValidation.validate({
+    ...req.params,
+    ...req.body,
+  });
   if (error) {
     return res
       .status(400)
@@ -121,6 +144,7 @@ router.put('/:id', auth, lib.validateUser, async (req, res) => {
       const updatedNote = await note.update({
         title,
         content,
+        updatedAt: getCurrentDate(),
       });
       return res.status(200).json({ success: true, payload: updatedNote });
     }
@@ -158,9 +182,7 @@ router.delete('/:id', auth, lib.validateUser, async (req, res) => {
     // Check if the user owns the note
     if (req.user.id === note.userId) {
       await note.destroy();
-      return res
-        .status(200)
-        .json({ success: true, payload: note });
+      return res.status(200).json({ success: true, payload: note });
     }
     return res
       .status(401)
@@ -173,6 +195,10 @@ router.delete('/:id', auth, lib.validateUser, async (req, res) => {
   }
 });
 
+/**
+ * Delete all provided UUID's from the user
+ * @body {Array<uuid>} id - Array of UUID's
+ */
 router.delete('/', auth, lib.validateUser, async (req, res) => {
   const { error, value } = bulkDelete.validate(req.body);
   if (error) {

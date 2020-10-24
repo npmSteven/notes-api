@@ -2,6 +2,7 @@ const express = require('express');
 
 const { deleteNotes } = require('../../common/note');
 const { sanitiseUser } = require('../../common/user');
+const { getCurrentDate } = require('../../lib');
 const lib = require('../../lib');
 const auth = require('../../middleware/auth');
 const Note = require('../../models/Note');
@@ -84,7 +85,12 @@ router.put('/', auth, lib.validateUser, async (req, res) => {
 
     const user = await User.findByPk(req.user.id);
 
-    const updatedUser = await user.update({ firstName, lastName, email });
+    const updatedUser = await user.update({
+      firstName,
+      lastName,
+      email,
+      updatedAt: getCurrentDate(),
+    });
 
     return res
       .status(200)

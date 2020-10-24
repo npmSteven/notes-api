@@ -14,6 +14,7 @@ const {
 } = require('../../validation/userValidation');
 const User = require('../../models/User');
 const { sanitiseUser } = require('../../common/user');
+const { getCurrentDate } = require('../../lib');
 
 const router = express.Router();
 
@@ -95,12 +96,16 @@ router.post('/register', async (req, res) => {
 
     const hash = await generateHash(password);
 
+    const currentDate = getCurrentDate();
+
     const newUser = await User.create({
       id: uuid.v4(),
       firstName,
       lastName,
       email,
       password: hash,
+      createdAt: currentDate,
+      updatedAt: currentDate,
     });
     if (!newUser) {
       return res.status(500).json({
@@ -157,7 +162,10 @@ router.put('/password', auth, lib.validateUser, async (req, res) => {
 
     const hash = await generateHash(newPassword);
 
-    const updatedUser = await user.update({ password: hash });
+    const updatedUser = await user.update({
+      password: hash,
+      updatedAt: getCurrentDate(),
+    });
 
     return res.status(200).json({
       success: true,

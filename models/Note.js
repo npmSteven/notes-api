@@ -21,12 +21,12 @@ const Note = sequelize.define('note', {
   },
   createdAt: {
     allowNull: false,
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
   },
   updatedAt: {
     allowNull: false,
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
   },
-});
+}, { createdAt: false, updatedAt: false });
 
 module.exports = Note;

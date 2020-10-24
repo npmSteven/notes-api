@@ -17,3 +17,15 @@ module.exports.email = Joi
   .required();
 
 module.exports.arrayUuids = Joi.array().items(this.id).min(1).required();
+
+module.exports.limit = Joi.number().greater(0).optional();
+
+module.exports.offset = Joi.number().greater(0).optional();
+
+module.exports.page = Joi.number().greater(-1).optional();
+
+module.exports.pageSize = Joi.number().greater(-1).optional();
+
+module.exports.orderBy = Joi.string().valid('updatedAt', 'createdAt').optional();
+
+module.exports.order = Joi.string().valid('ASC', 'DESC').optional();
