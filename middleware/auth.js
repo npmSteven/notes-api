@@ -29,7 +29,7 @@ module.exports = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log('ERROR - auth.js - / auth', err);
+    console.error('ERROR - auth.js - / auth', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });

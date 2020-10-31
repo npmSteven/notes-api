@@ -41,7 +41,7 @@ async function init() {
     // Start express
     app.listen(config.express.port, () => console.log('APP Running!'));
   } catch (err) {
-    console.log('ERROR - Failed init(): ', err);
+    console.error('ERROR - Failed init(): ', err);
   }
 }
 

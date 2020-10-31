@@ -26,7 +26,7 @@ router.get('/', auth, async (req, res) => {
       payload: sanitiseUser(user),
     });
   } catch (err) {
-    console.log('ERROR - user.js - get - user: ', err);
+    console.error('ERROR - user.js - get - user: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -56,7 +56,7 @@ router.delete('/', auth, async (req, res) => {
 
     return res.status(200).json({ success: true, payload: sanitiseUser(user) });
   } catch (err) {
-    console.log('ERROR - user.js - delete - user: ', err);
+    console.error('ERROR - user.js - delete - user: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -95,7 +95,7 @@ router.put('/', auth, async (req, res) => {
       .status(200)
       .json({ success: true, payload: sanitiseUser(updatedUser) });
   } catch (err) {
-    console.log('ERROR - user.js - put - user: ', err);
+    console.error('ERROR - user.js - put - user: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -145,7 +145,7 @@ router.get('/token/confirm/:token', auth, async (req, res) => {
       payload: sanitiseUser(updatedUser),
     });
   } catch (err) {
-    console.log('ERROR - user.js - / get confirm/:id: ', err);
+    console.error('ERROR - user.js - / get confirm/:id: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -190,7 +190,7 @@ router.get('/token/retry', auth, async (req, res) => {
       },
     });
   } catch (err) {
-    console.log('ERROR - user.js - / get retry', err);
+    console.error('ERROR - user.js - / get retry', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });

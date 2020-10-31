@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
       },
     });
   } catch (err) {
-    console.log('ERROR - auth.js - post - login: ', err);
+    console.error('ERROR - auth.js - post - login: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -146,7 +146,7 @@ router.post('/register', async (req, res) => {
       },
     });
   } catch (err) {
-    console.log('ERROR - auth.js - post - register: ', err);
+    console.error('ERROR - auth.js - post - register: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -186,7 +186,7 @@ router.put('/password', auth, async (req, res) => {
       payload: sanitiseUser(updatedUser),
     });
   } catch (err) {
-    console.log('ERROR - auth.js - put - password: ', err);
+    console.error('ERROR - auth.js - put - password: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });

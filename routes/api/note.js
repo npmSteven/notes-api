@@ -40,7 +40,7 @@ router.get('/', auth, isVerified, async (req, res) => {
 
     return res.status(200).json({ success: true, payload: notes });
   } catch (err) {
-    console.log('ERROR - note.js - / get notes: ', err);
+    console.error('ERROR - note.js - / get notes: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -75,7 +75,7 @@ router.get('/:id', auth, isVerified, async (req, res) => {
       .status(401)
       .json({ success: false, payload: { message: 'Unauthorized' } });
   } catch (err) {
-    console.log('ERROR - note.js - / get notes: ', err);
+    console.error('ERROR - note.js - / get notes: ', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -107,7 +107,7 @@ router.post('/', auth, isVerified, async (req, res) => {
     });
     return res.status(200).json({ success: true, payload: savedNote });
   } catch (err) {
-    console.log('ERROR - note.js - / post', err);
+    console.error('ERROR - note.js - / post', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -152,7 +152,7 @@ router.put('/:id', auth, isVerified, async (req, res) => {
       .status(401)
       .json({ success: false, payload: { message: 'Unauthorized' } });
   } catch (err) {
-    console.log('ERROR - note.js - / patch', err);
+    console.error('ERROR - note.js - / patch', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -188,7 +188,7 @@ router.delete('/:id', auth, isVerified, async (req, res) => {
       .status(401)
       .json({ success: false, payload: { message: 'Unauthorized' } });
   } catch (err) {
-    console.log('ERROR - note.js - / delete', err);
+    console.error('ERROR - note.js - / delete', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
@@ -224,7 +224,7 @@ router.delete('/', auth, isVerified, async (req, res) => {
       },
     });
   } catch (err) {
-    console.log('ERROR - note.js - / delete', err);
+    console.error('ERROR - note.js - / delete', err);
     return res
       .status(500)
       .json({ success: false, payload: { message: 'Internal server error' } });
