@@ -14,4 +14,8 @@ module.exports = {
   jwt: {
     secret: process.env.JWT_SECRET,
   },
+  mail: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
 };

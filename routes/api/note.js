@@ -1,7 +1,6 @@
 const express = require('express');
 const uuid = require('uuid');
 
-const lib = require('../../lib');
 const auth = require('../../middleware/auth');
 const Note = require('../../models/Note');
 const {
@@ -13,13 +12,14 @@ const { deleteNotes } = require('../../common/note');
 const { idValidation } = require('../../validation/commonValidation');
 const { getCurrentDate, paginate } = require('../../lib');
 const arrayValidation = require('../../validation/arrayValidation');
+const isVerified = require('../../middleware/isVerified');
 
 const router = express.Router();
 
 /**
  * Get all notes of the authenticated user
  */
-router.get('/', auth, lib.validateUser, async (req, res) => {
+router.get('/', auth, isVerified, async (req, res) => {
   const { error, value } = arrayValidation.validate(req.query);
   if (error) {
     return res
@@ -51,7 +51,7 @@ router.get('/', auth, lib.validateUser, async (req, res) => {
  * Get a specific note for the authenticated user
  * @param {uuid} id - The id of the note
  */
-router.get('/:id', auth, lib.validateUser, async (req, res) => {
+router.get('/:id', auth, isVerified, async (req, res) => {
   const { error, value } = idValidation.validate(req.params);
   if (error) {
     return res
@@ -87,7 +87,7 @@ router.get('/:id', auth, lib.validateUser, async (req, res) => {
  * @property {string} title - The title of the note
  * @property {string} content - The content of the note
  */
-router.post('/', auth, lib.validateUser, async (req, res) => {
+router.post('/', auth, isVerified, async (req, res) => {
   const { error, value } = addValidation.validate(req.body);
   if (error) {
     return res
@@ -120,7 +120,7 @@ router.post('/', auth, lib.validateUser, async (req, res) => {
  * @property {string} title - The title of the note
  * @property {string} content - The content of the note
  */
-router.put('/:id', auth, lib.validateUser, async (req, res) => {
+router.put('/:id', auth, isVerified, async (req, res) => {
   const { error, value } = updateValidation.validate({
     ...req.params,
     ...req.body,
@@ -163,7 +163,7 @@ router.put('/:id', auth, lib.validateUser, async (req, res) => {
  * Delete an existing note of an authenticated user
  * @param {uuid} id - The id of the note
  */
-router.delete('/:id', auth, lib.validateUser, async (req, res) => {
+router.delete('/:id', auth, isVerified, async (req, res) => {
   const { error, value } = idValidation.validate(req.params);
   if (error) {
     return res
@@ -199,7 +199,7 @@ router.delete('/:id', auth, lib.validateUser, async (req, res) => {
  * Delete all provided UUID's from the user
  * @body {Array<uuid>} id - Array of UUID's
  */
-router.delete('/', auth, lib.validateUser, async (req, res) => {
+router.delete('/', auth, isVerified, async (req, res) => {
   const { error, value } = bulkDelete.validate(req.body);
   if (error) {
     return res.status(400).json({

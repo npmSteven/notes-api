@@ -16,7 +16,8 @@ const {
 const User = require('../../models/User');
 const { sanitiseUser } = require('../../common/user');
 const { getCurrentDate, generateToken } = require('../../lib');
-const Token = require('../../models/Token');
+const { sendMail } = require('../../mail');
+const AccountVerificationToken = require('../../models/AccountVerificationToken');
 
 const router = express.Router();
 
@@ -46,13 +47,6 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({
         success: false,
         payload: { message: 'Password is incorrect' },
-      });
-    }
-
-    if (!user.isVerified) {
-      return res.status(401).json({
-        success: false,
-        payload: { message: 'User not yet verified' },
       });
     }
 
@@ -124,17 +118,32 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    await Token.create({
+    const newVerificationToken = await AccountVerificationToken.create({
       id: uuid.v4(),
       userId: newUser.id,
       token: generateToken(),
-      expires: DateTime.fromISO(currentDate).plus({ hour: 1 }).toISO(),
+      expires: DateTime.fromISO(currentDate).plus({ minutes: 30 }).toISO(),
       createdAt: currentDate,
     });
 
+    await sendMail(newUser.id, newVerificationToken.token, req.headers.host);
+
+    const token = jwt.sign({ id: newUser.id }, config.jwt.secret, {
+      expiresIn: 86400,
+    });
+    if (!token) {
+      return res.status(500).json({
+        success: false,
+        payload: { message: "Couldn't sign the token" },
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      payload: sanitiseUser(newUser),
+      payload: {
+        token,
+        user: sanitiseUser(newUser),
+      },
     });
   } catch (err) {
     console.log('ERROR - auth.js - post - register: ', err);
@@ -145,7 +154,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Update password
-router.put('/password', auth, lib.validateUser, async (req, res) => {
+router.put('/password', auth, async (req, res) => {
   const { error, value } = userUpdatePasswordValidation.validate(req.body);
   if (error) {
     return res

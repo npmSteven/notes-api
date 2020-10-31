@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db').sequelize();
 
-const Token = sequelize.define('token', {
+const Token = sequelize.define('accountVerificationToken', {
   id: {
     type: DataTypes.UUIDV4,
     allowNull: false,
