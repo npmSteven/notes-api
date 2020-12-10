@@ -1,7 +1,7 @@
 // Packages
 const dotenv = require('dotenv');
 
-// Initialse dotenv so we can get the enviroment variables from .env file
+// Initialize dotenv so we can get the enviroment variables from .env file
 dotenv.config();
 
 module.exports = {
