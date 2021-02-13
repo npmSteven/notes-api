@@ -19,5 +19,18 @@ module.exports.connect = async () => {
   }
 };
 
-// Return sequelize so that we can use it to create models and etc
-module.exports.sequelize = () => sequelize;
+const User = require('./models/User');
+const Note = require('./models/Note');
+const AccountVerificationToken = require('./models/AccountVerificationToken');
+
+module.exports.syncModels = async () => {
+  try {
+    await User.sync();
+    await Note.sync();
+    await AccountVerificationToken.sync();
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports.sequelize = sequelize;

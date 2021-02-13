@@ -38,6 +38,9 @@ async function init() {
     // Attempt a database connection
     await db.connect();
 
+    // Sync models
+    await db.syncModels();
+
     // Start express
     app.listen(config.express.port, () => console.log('APP Running!'));
   } catch (err) {

@@ -9,7 +9,6 @@ const loginValidation = require('../../validation/loginValidation');
 const config = require('../../config');
 const { generateHash } = require('../../common/auth');
 const auth = require('../../middleware/auth');
-const lib = require('../../lib');
 const {
   userUpdatePasswordValidation,
 } = require('../../validation/userValidation');
